@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DotNetSdkHelpers.Commands;
@@ -8,8 +8,9 @@ using Newtonsoft.Json;
 namespace DotNetSdkHelpers
 {
     [Command(Description = "Manage .NET Core SDKs"),
-    Subcommand("list", typeof(List)),
-    Subcommand("releases", typeof(Releases))]
+     Subcommand("set", typeof(Set)),
+     Subcommand("list", typeof(List)),
+     Subcommand("releases", typeof(Releases))]
     class Program
     {
         static void Main(string[] args) => CommandLineApplication.ExecuteAsync<Program>(args);
