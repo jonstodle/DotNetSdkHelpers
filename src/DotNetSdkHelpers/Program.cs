@@ -10,7 +10,8 @@ namespace DotNetSdkHelpers
     [Command(Description = "Manage .NET Core SDKs"),
      Subcommand("set", typeof(Set)),
      Subcommand("list", typeof(List)),
-     Subcommand("releases", typeof(Releases))]
+     Subcommand("releases", typeof(Releases)),
+    Subcommand("get", typeof(Get))]
     class Program
     {
         static void Main(string[] args) => CommandLineApplication.ExecuteAsync<Program>(args);

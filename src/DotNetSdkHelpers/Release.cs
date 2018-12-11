@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace DotNetSdkHelpers
@@ -10,5 +11,6 @@ namespace DotNetSdkHelpers
         public string SdkDisplayVersion => this["version-sdk-display"];
         public bool IsRuntimeLts => bool.TryParse(this["lts-runtime"].ToLowerInvariant(), out var isLts) && isLts;
         public bool IsSdkLts => bool.TryParse(this["lts-sdk"].ToLowerInvariant(), out var isLts) && isLts;
+        public bool IsPreview => SdkVersion.Contains("preview", StringComparison.OrdinalIgnoreCase);
     }
 }
