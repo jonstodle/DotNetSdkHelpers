@@ -5,7 +5,8 @@ using McMaster.Extensions.CommandLineUtils;
 namespace DotNetSdkHelpers
 {
     [Command(Description = "Manage .NET Core SDKs"),
-    Subcommand("list", typeof(List))]
+    Subcommand("list", typeof(List)),
+    Subcommand("releases", typeof(Releases))]
     class Program
     {
         static void Main(string[] args) => CommandLineApplication.ExecuteAsync<Program>(args);
