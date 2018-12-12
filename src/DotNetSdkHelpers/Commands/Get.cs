@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -44,15 +45,19 @@ namespace DotNetSdkHelpers.Commands
             }
 
             var fileName = $"sdk-{platform}{GetPackageExtension(platform)}";
+            var fileDownloadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "Downloads", fileName);
             var client = new HttpClient();
             using (var fileStream = new FileStream(
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", fileName),
+                fileDownloadPath,
                 FileMode.Create))
             {
                 Console.WriteLine($"Downloading .NET Core SDK version {release.SdkVersion} for platform {platform}...");
                 var stream = await client.GetStreamAsync(release[fileName]);
                 stream.CopyTo(fileStream);
             }
+
+            Process.Start(fileDownloadPath);
 
             return 0;
         }
