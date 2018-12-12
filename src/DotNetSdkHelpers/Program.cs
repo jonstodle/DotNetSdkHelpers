@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DotNetSdkHelpers.Commands;
@@ -27,7 +28,7 @@ namespace DotNetSdkHelpers
 
         public Task<int> OnExecuteAsync(CommandLineApplication app)
         {
-            app.ShowHelp();
+            Process.Start("dotnet", "--version");
             return Task.FromResult(0);
         }
     }
