@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace DotNetSdkHelpers
 {
-    [Command(Description = "Manage .NET Core SDKs"),
+    [Command("dotnet-sdk", Description = "Manage .NET Core SDKs"),
      Subcommand("set", typeof(Set)),
      Subcommand("list", typeof(List)),
      Subcommand("releases", typeof(Releases)),
