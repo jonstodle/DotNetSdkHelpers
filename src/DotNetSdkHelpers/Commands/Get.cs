@@ -10,7 +10,7 @@ using McMaster.Extensions.CommandLineUtils;
 namespace DotNetSdkHelpers.Commands
 {
     [Command(Description =
-        "Downloads the provided release version & platform. (\'\' or \'latest\' for the latest release.")]
+        "Downloads the provided release version & platform. (\'\' or \'latest\' for the latest release.)")]
     public class Get
     {
         [Argument(0, Description = "Version to download, or 'latest'")]
