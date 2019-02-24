@@ -9,8 +9,8 @@ namespace DotNetSdkHelpers
         public string SdkVersion => this["version-sdk"];
         public string RuntimeDisplayVersion => this["version-runtime-display"];
         public string SdkDisplayVersion => this["version-sdk-display"];
-        public bool IsRuntimeLts => bool.TryParse(this["lts-runtime"].ToLowerInvariant(), out var isLts) && isLts;
-        public bool IsSdkLts => bool.TryParse(this["lts-sdk"].ToLowerInvariant(), out var isLts) && isLts;
+        public bool IsLtsRuntime => bool.TryParse(this["lts-runtime"].ToLowerInvariant(), out var isLts) && isLts;
+        public bool IsLtsSdk => bool.TryParse(this["lts-sdk"].ToLowerInvariant(), out var isLts) && isLts;
         public bool IsPreview => SdkVersion.Contains("preview", StringComparison.OrdinalIgnoreCase);
     }
 }

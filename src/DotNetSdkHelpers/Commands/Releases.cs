@@ -19,10 +19,10 @@ namespace DotNetSdkHelpers.Commands
             var releases = await Program.GetReleases();
             
             foreach (var release in releases
-                .Where(r => !LtsOnly || r.IsRuntimeLts)
+                .Where(r => !LtsOnly || r.IsLtsRuntime)
                 .OrderByDescending(r => r.SdkVersion))
             {
-                Console.WriteLine($"{release.SdkVersion}{(release.IsRuntimeLts ? " (LTS)" : "")}");
+                Console.WriteLine($"{release.SdkVersion}{(release.IsLtsRuntime ? " (LTS)" : "")}");
             }
 
             return 0;
