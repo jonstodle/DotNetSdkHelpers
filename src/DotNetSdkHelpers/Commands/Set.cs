@@ -1,9 +1,9 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using McMaster.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
+using static DotNetSdkHelpers.Helpers;
 
 namespace DotNetSdkHelpers.Commands
 {
@@ -47,16 +47,8 @@ namespace DotNetSdkHelpers.Commands
             }
             else
             {
-                var getVersionsProcess = new Process
-                {
-                    StartInfo = new ProcessStartInfo("dotnet", "--list-sdks")
-                    {
-                        RedirectStandardOutput = true
-                    }
-                };
-                getVersionsProcess.Start();
-                getVersionsProcess.WaitForExit();
-                if (!(getVersionsProcess.StandardOutput.ReadToEnd()
+                var sdkOutput = CaptureOutput("dotnet", "--list-sdks");
+                if (!(sdkOutput
                         .Split(Environment.NewLine)
                         .Select(line => line.Split(' ').First())
                         .FirstOrDefault(v => v.Equals(Version, StringComparison.OrdinalIgnoreCase))
@@ -78,16 +70,8 @@ namespace DotNetSdkHelpers.Commands
                     }));
             }
 
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo("dotnet", "--version")
-                {
-                    RedirectStandardOutput = true
-                }
-            };
-            process.Start();
-            process.WaitForExit();
-            Console.WriteLine($".NET Core SDK version switched: {process.StandardOutput.ReadLine()}");
+            var output = CaptureOutput("dotnet", "--version");
+            Console.WriteLine($".NET Core SDK version switched: {output.Trim()}");
 
             return 0;
         }

@@ -1,6 +1,7 @@
-using System.Diagnostics;
+using System;
 using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
+using static DotNetSdkHelpers.Helpers;
 
 namespace DotNetSdkHelpers.Commands
 {
@@ -9,8 +10,9 @@ namespace DotNetSdkHelpers.Commands
     {
         public Task<int> OnExecuteAsync()
         {
-            Process.Start("dotnet", "--list-sdks");
-            return Task.FromResult(2);
+            var output = CaptureOutput("dotnet", "--list-sdks");
+            Console.WriteLine(output.Trim());
+            return Task.FromResult(0);
         }
     }
 }

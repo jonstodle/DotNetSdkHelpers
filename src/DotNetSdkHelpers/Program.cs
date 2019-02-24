@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using DotNetSdkHelpers.Commands;
 using McMaster.Extensions.CommandLineUtils;
+using static DotNetSdkHelpers.Helpers;
 
 namespace DotNetSdkHelpers
 {
@@ -17,13 +17,7 @@ namespace DotNetSdkHelpers
 
         public Task<int> OnExecuteAsync(CommandLineApplication app)
         {
-            var output = Process.Start(new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = "--version",
-                RedirectStandardOutput = true,
-            })?
-                .StandardOutput.ReadToEnd();
+            var output = CaptureOutput("dotnet", "--version");
             Console.WriteLine(output?.Trim() ?? "Unable to fetch current SDK version");
             return Task.FromResult(0);
         }
