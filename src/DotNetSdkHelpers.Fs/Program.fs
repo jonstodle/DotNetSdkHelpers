@@ -13,5 +13,5 @@ let main argv =
         |> (fun proc -> proc.StandardOutput.ReadToEnd())
         |> (fun output -> output.Trim())
         |> printfn "%s"
-    0 // return an integer exit code
+    0
 
