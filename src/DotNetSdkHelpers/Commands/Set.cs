@@ -10,8 +10,10 @@ namespace DotNetSdkHelpers.Commands
     [Command(Description = "Switches to the specified .NET Core SDK version")]
     public class Set
     {
+        // ReSharper disable UnassignedGetOnlyAutoProperty
         [Argument(0, Description = "'latest' or a specific version")]
         public string Version { get; }
+        // ReSharper restore UnassignedGetOnlyAutoProperty
 
         public int OnExecute()
         {

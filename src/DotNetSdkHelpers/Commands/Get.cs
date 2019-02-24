@@ -14,6 +14,7 @@ namespace DotNetSdkHelpers.Commands
         "Downloads the provided release version & platform.")]
     public class Get
     {
+        // ReSharper disable UnassignedGetOnlyAutoProperty
         [Argument(0, Description = "Version to download, or 'latest' (or empty)")]
         public string Version { get; }
 
@@ -23,6 +24,7 @@ namespace DotNetSdkHelpers.Commands
 
         [Option(CommandOptionType.NoValue, Description = "Whether to include preview versions.")]
         public bool IncludePreview { get; }
+        // ReSharper restore UnassignedGetOnlyAutoProperty
 
         public async Task<int> OnExecuteAsync()
         {

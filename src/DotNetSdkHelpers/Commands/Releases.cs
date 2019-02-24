@@ -9,8 +9,10 @@ namespace DotNetSdkHelpers.Commands
     [Command(Description = "Lists all available releases of .NET Core SDKs")]
     public class Releases
     {
+        // ReSharper disable UnassignedGetOnlyAutoProperty
         [Option(Description = "Only show LTS releases")]
         public bool LtsOnly { get; }
+        // ReSharper restore UnassignedGetOnlyAutoProperty
 
         public async Task<int> OnExecuteAsync()
         {
