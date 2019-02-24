@@ -39,8 +39,9 @@ namespace DotNetSdkHelpers.Commands
 
             if (!((await GetReleases())
                 .Where(r => IncludePreview || !r.IsPreview)
+                .OrderByDescending(r => r.SdkVersion)
                 .FirstOrDefault(r => version.Equals("latest") ||
-                                     r.SdkVersion.Equals(version, StringComparison.OrdinalIgnoreCase))
+                                     r.SdkVersion.StartsWith(version, StringComparison.OrdinalIgnoreCase))
                 is Release release))
             {
                 Console.Error.WriteLine("Unable to identify release with specified version.");
