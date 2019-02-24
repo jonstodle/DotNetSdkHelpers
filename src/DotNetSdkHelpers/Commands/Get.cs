@@ -48,15 +48,15 @@ namespace DotNetSdkHelpers.Commands
                 return 1;
             }
 
-            var fileName = $"sdk-{platform}{GetPackageExtension(platform)}";
+            var downloadUrl = release[$"sdk-{platform}{GetPackageExtension(platform)}"];
             var fileDownloadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                "Downloads", fileName);
+                "Downloads", downloadUrl.Split('/').Last());
             var client = new HttpClient();
 
             var downloadMessage = $"Downloading .NET Core SDK version {release.SdkVersion} for {platform}";
             
             using (var fileStream = new FileStream(fileDownloadPath, FileMode.Create))
-            using (var stream = await client.GetStreamAsync(release[fileName]))
+            using (var stream = await client.GetStreamAsync(downloadUrl))
             {
                 var buffer = new byte[(long) Math.Pow(2, 20)];
                 int bytesRead;
