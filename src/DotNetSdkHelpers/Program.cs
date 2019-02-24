@@ -12,7 +12,7 @@ namespace DotNetSdkHelpers
      Subcommand("set", typeof(Set)),
      Subcommand("list", typeof(List)),
      Subcommand("releases", typeof(Releases)),
-    Subcommand("get", typeof(Get))]
+     Subcommand("get", typeof(Get))]
     class Program
     {
         static void Main(string[] args) => CommandLineApplication.ExecuteAsync<Program>(args);
