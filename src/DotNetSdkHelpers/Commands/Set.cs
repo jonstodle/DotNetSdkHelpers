@@ -53,7 +53,8 @@ namespace DotNetSdkHelpers.Commands
                 if (!(sdkOutput
                         .Split(Environment.NewLine)
                         .Select(line => line.Split(' ').First())
-                        .FirstOrDefault(v => v.Equals(Version, StringComparison.OrdinalIgnoreCase))
+                        .Reverse()
+                        .FirstOrDefault(v => v.StartsWith(Version, StringComparison.OrdinalIgnoreCase))
                     is string selectedVersion))
                 {
                     Console.WriteLine($"The {Version} version of .Net Core SDK was not found");
