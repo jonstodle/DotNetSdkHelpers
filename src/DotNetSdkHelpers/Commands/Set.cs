@@ -32,7 +32,7 @@ namespace DotNetSdkHelpers.Commands
                     Path.Combine(parentDirectoryPath, "global.json") is string parentGlobalJsonPath &&
                     File.Exists(parentGlobalJsonPath) &&
                     Prompt.GetYesNo(
-                        "There's a global.json in your parent directory. Do you want to delete it? (N/y)",
+                        "There's a global.json in your parent directory. Do you want to delete it?",
                         false))
                 {
                     try
