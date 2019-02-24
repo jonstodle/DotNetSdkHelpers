@@ -48,13 +48,24 @@ namespace DotNetSdkHelpers.Commands
             var fileDownloadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
                 "Downloads", fileName);
             var client = new HttpClient();
-            using (var fileStream = new FileStream(
-                fileDownloadPath,
-                FileMode.Create))
+
+            Console.WriteLine($"Downloading .NET Core SDK version {release.SdkVersion} for platform {platform}...");
+            using (var fileStream = new FileStream(fileDownloadPath, FileMode.Create))
+            using (var stream = await client.GetStreamAsync(release[fileName]))
             {
-                Console.WriteLine($"Downloading .NET Core SDK version {release.SdkVersion} for platform {platform}...");
-                var stream = await client.GetStreamAsync(release[fileName]);
-                stream.CopyTo(fileStream);
+                var buffer = new byte[(long) Math.Pow(2, 20)];
+                var bytesRead = 0;
+                var bytesWritten = 0;
+                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    fileStream.Write(buffer, 0, bytesRead);
+                    bytesWritten += bytesRead;
+
+                    Console.SetCursorPosition(0, Console.CursorTop);
+                    Console.Write($"{bytesWritten / Math.Pow(2, 20):N2} MiB");
+                }
+
+                Console.WriteLine();
             }
 
             Process.Start(fileDownloadPath);
