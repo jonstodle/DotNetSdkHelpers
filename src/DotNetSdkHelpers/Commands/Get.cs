@@ -28,6 +28,8 @@ namespace DotNetSdkHelpers.Commands
 
         public async Task<int> OnExecuteAsync()
         {
+            Console.WriteLine("Resolving version to download...");
+            
             var version = Version ?? "latest";
             var platform = GetPlatformString();
 
@@ -44,7 +46,7 @@ namespace DotNetSdkHelpers.Commands
                                      r.SdkVersion.StartsWith(version, StringComparison.OrdinalIgnoreCase))
                 is Release release))
             {
-                Console.Error.WriteLine("Unable to identify release with specified version.");
+                Console.Error.WriteLine("Unable to identify a release with specified version.");
                 return 1;
             }
 
