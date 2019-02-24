@@ -49,12 +49,13 @@ namespace DotNetSdkHelpers.Commands
                 "Downloads", fileName);
             var client = new HttpClient();
 
-            Console.WriteLine($"Downloading .NET Core SDK version {release.SdkVersion} for platform {platform}...");
+            var downloadMessage = $"Downloading .NET Core SDK version {release.SdkVersion} for platform {platform}";
+            
             using (var fileStream = new FileStream(fileDownloadPath, FileMode.Create))
             using (var stream = await client.GetStreamAsync(release[fileName]))
             {
                 var buffer = new byte[(long) Math.Pow(2, 20)];
-                var bytesRead = 0;
+                int bytesRead;
                 var bytesWritten = 0;
                 while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
                 {
@@ -62,13 +63,17 @@ namespace DotNetSdkHelpers.Commands
                     bytesWritten += bytesRead;
 
                     Console.SetCursorPosition(0, Console.CursorTop);
-                    Console.Write($"{bytesWritten / Math.Pow(2, 20):N2} MiB");
+                    Console.Write($"{downloadMessage}: {bytesWritten / Math.Pow(2, 20):N2} MiB");
                 }
 
                 Console.WriteLine();
             }
 
-            Process.Start(fileDownloadPath);
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = fileDownloadPath,
+                UseShellExecute = true,
+            });
 
             return 0;
         }
