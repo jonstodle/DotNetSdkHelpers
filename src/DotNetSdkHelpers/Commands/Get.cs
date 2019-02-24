@@ -53,7 +53,7 @@ namespace DotNetSdkHelpers.Commands
                 "Downloads", fileName);
             var client = new HttpClient();
 
-            var downloadMessage = $"Downloading .NET Core SDK version {release.SdkVersion} for platform {platform}";
+            var downloadMessage = $"Downloading .NET Core SDK version {release.SdkVersion} for {platform}";
             
             using (var fileStream = new FileStream(fileDownloadPath, FileMode.Create))
             using (var stream = await client.GetStreamAsync(release[fileName]))
