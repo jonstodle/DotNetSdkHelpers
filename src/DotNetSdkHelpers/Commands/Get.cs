@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
+using static DotNetSdkHelpers.Helpers;
 
 namespace DotNetSdkHelpers.Commands
 {
@@ -34,7 +35,7 @@ namespace DotNetSdkHelpers.Commands
                 return 1;
             }
 
-            if (!((await Program.GetReleases())
+            if (!((await GetReleases())
                 .Where(r => IncludePreview || !r.IsPreview)
                 .FirstOrDefault(r => version.Equals("latest") ||
                                      r.SdkVersion.Equals(version, StringComparison.OrdinalIgnoreCase))
