@@ -12,14 +12,14 @@ namespace DotNetSdkHelpers.Commands
     public class Releases
     {
         [Option(Description = "Only show LTS releases")]
-        public bool OnlyLts { get; }
+        public bool LtsOnly { get; }
 
         public async Task<int> OnExecuteAsync()
         {
             var releases = await Program.GetReleases();
             
             foreach (var release in releases
-                .Where(r => !OnlyLts || r.IsRuntimeLts)
+                .Where(r => !LtsOnly || r.IsRuntimeLts)
                 .OrderByDescending(r => r.SdkVersion))
             {
                 Console.WriteLine($"{release.SdkVersion}{(release.IsRuntimeLts ? " (LTS)" : "")}");
