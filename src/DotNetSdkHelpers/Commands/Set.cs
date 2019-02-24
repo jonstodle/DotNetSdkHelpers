@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using McMaster.Extensions.CommandLineUtils;
@@ -12,6 +13,7 @@ namespace DotNetSdkHelpers.Commands
     {
         // ReSharper disable UnassignedGetOnlyAutoProperty
         [Argument(0, Description = "'latest' or a specific version")]
+        [Required]
         public string Version { get; }
         // ReSharper restore UnassignedGetOnlyAutoProperty
 
