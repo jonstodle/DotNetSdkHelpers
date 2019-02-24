@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -28,7 +29,14 @@ namespace DotNetSdkHelpers
 
         public Task<int> OnExecuteAsync(CommandLineApplication app)
         {
-            Process.Start("dotnet", "--version");
+            var output = Process.Start(new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = "--version",
+                RedirectStandardOutput = true,
+            })?
+                .StandardOutput.ReadToEnd();
+            Console.WriteLine(output?.Trim() ?? "Unable to fetch current SDK version");
             return Task.FromResult(0);
         }
     }
