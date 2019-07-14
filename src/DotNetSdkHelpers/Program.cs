@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using DotNetSdkHelpers.Commands;
 using McMaster.Extensions.CommandLineUtils;
@@ -7,13 +8,22 @@ using static DotNetSdkHelpers.Helpers;
 namespace DotNetSdkHelpers
 {
     [Command("dotnet-sdk", Description = "Manage .NET Core SDKs"),
-     Subcommand("set", typeof(Set)),
-     Subcommand("list", typeof(List)),
-     Subcommand("releases", typeof(Releases)),
-     Subcommand("get", typeof(Get))]
+     Subcommand(typeof(Set)),
+     Subcommand(typeof(List)),
+     Subcommand(typeof(Releases)),
+     Subcommand(typeof(Get))]
     class Program
     {
-        static void Main(string[] args) => CommandLineApplication.ExecuteAsync<Program>(args);
+        static void Main(string[] args)
+        {
+            var app = new CommandLineApplication<Program>(
+                PhysicalConsole.Singleton,
+                Directory.GetCurrentDirectory(),
+                true);
+            app.Conventions.UseDefaultConventions();
+            app.UsePagerForHelpText = false;
+            app.Execute(args);
+        }
 
         public Task<int> OnExecuteAsync(CommandLineApplication app)
         {
