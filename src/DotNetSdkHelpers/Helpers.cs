@@ -10,15 +10,14 @@ namespace DotNetSdkHelpers
 {
     public static class Helpers
     {
-        private static HttpClient _client = new HttpClient();
+        private static readonly HttpClient Client = new HttpClient();
 
-        public static async Task<List<Release>> GetReleases()
-        {
-            return JsonConvert.DeserializeObject<List<Release>>(
-                await _client
-                    .GetStringAsync(
-                        "https://raw.githubusercontent.com/dotnet/core/master/release-notes/releases.json"));
-        }
+        public static async Task<List<Release>> GetReleases() =>
+            JsonConvert.DeserializeObject<ReleasesIndexResponse>(
+                    await Client
+                        .GetStringAsync(
+                            "https://raw.githubusercontent.com/dotnet/core/master/release-notes/releases-index.json"))
+                .Releases;
 
         public static string CaptureOutput(string fileName, string arguments) =>
             Process.Start(new ProcessStartInfo

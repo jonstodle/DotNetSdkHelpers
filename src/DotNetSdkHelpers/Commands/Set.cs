@@ -35,7 +35,7 @@ namespace DotNetSdkHelpers.Commands
                     JsonConvert.SerializeObject(new
                     {
                         sdk = new
-                        {
+                    {
                             version = selectedSdk.Version
                         }
                     }));

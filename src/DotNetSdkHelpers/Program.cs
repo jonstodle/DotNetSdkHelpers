@@ -10,8 +10,7 @@ namespace DotNetSdkHelpers
     [Command("dotnet-sdk", Description = "Manage .NET Core SDKs"),
      Subcommand(typeof(Set)),
      Subcommand(typeof(List)),
-     Subcommand(typeof(Releases)),
-     Subcommand(typeof(Get))]
+     Subcommand(typeof(Download))]
     class Program
     {
         static void Main(string[] args)
