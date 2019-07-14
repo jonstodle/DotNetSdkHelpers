@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -26,5 +28,16 @@ namespace DotNetSdkHelpers
                     RedirectStandardOutput = true,
                 })?
                 .StandardOutput.ReadToEnd();
+
+        public static List<Sdk> GetInstalledSdks() =>
+            CaptureOutput("dotnet", "--list-sdks")
+                .Trim()
+                .Split(Environment.NewLine)
+                .Select(sdk =>
+                {
+                    var parts = sdk.Split(' ');
+                    return new Sdk(parts[0], parts[1]);
+                })
+                .ToList();
     }
 }

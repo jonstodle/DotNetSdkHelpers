@@ -15,23 +15,16 @@ namespace DotNetSdkHelpers.Commands
         // ReSharper restore UnassignedGetOnlyAutoProperty
         public override Task Run()
         {
-            var output = CaptureOutput("dotnet", "--list-sdks").Trim();
-            
-            var sdks = output.Split(Environment.NewLine)
-                .Where(sdk => sdk.StartsWith(Filter, StringComparison.OrdinalIgnoreCase))
-                .Select(sdk =>
-                    {
-                        var parts = sdk.Split(' ');
-                        return (version: parts[0], location: parts[1]);
-                    })
+            var sdks = GetInstalledSdks()
+                .Where(sdk => sdk.Version.StartsWith(Filter, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-            var longestName = sdks.Max(sdk => sdk.version.Length);
+            var longestName = sdks.Max(sdk => sdk.Version.Length);
             
             Console.WriteLine(string.Join(
                 Environment.NewLine,
                 sdks
-                    .Select(sdk => $"{sdk.version.PadRight(longestName)} {sdk.location}")));
+                    .Select(sdk => $"{sdk.Version.PadRight(longestName)} {sdk.Location}")));
             
             return Task.CompletedTask;
         }
