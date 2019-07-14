@@ -13,14 +13,34 @@ namespace DotNetSdkHelpers.Commands
     public class Set : Command
     {
         // ReSharper disable UnassignedGetOnlyAutoProperty
-        [Argument(0, Description = "'latest' or a specific version")]
+        [Argument(0, Description = "'stable', 'preview' or a specific version")]
         [Required]
         public string Version { get; }
         // ReSharper restore UnassignedGetOnlyAutoProperty
 
         public override Task Run()
         {
-            if (Version.Equals("latest", StringComparison.OrdinalIgnoreCase))
+            if (Version.Equals("preview", StringComparison.OrdinalIgnoreCase))
+            {
+                var selectedSdk = GetInstalledSdks()
+                    .LastOrDefault(sdk => sdk.Version.Contains("preview", StringComparison.OrdinalIgnoreCase));
+                if (selectedSdk.IsDefault)
+                    throw new CliException(string.Join(
+                        Environment.NewLine,
+                        $"A preview version of .Net Core SDK was not found",
+                        "Run \"dotnet sdk list\" to make sure you have one installed"));
+                
+                File.WriteAllText(
+                    "global.json",
+                    JsonConvert.SerializeObject(new
+                    {
+                        sdk = new
+                        {
+                            version = selectedSdk.Version
+                        }
+                    }));
+            }
+            else if (Version.Equals("stable", StringComparison.OrdinalIgnoreCase))
             {
                 try
                 {
@@ -50,13 +70,10 @@ namespace DotNetSdkHelpers.Commands
             }
             else
             {
-                var sdkOutput = CaptureOutput("dotnet", "--list-sdks");
-                if (!(sdkOutput
-                        .Split(Environment.NewLine)
-                        .Select(line => line.Split(' ').First())
-                        .Reverse()
-                        .FirstOrDefault(v => v.StartsWith(Version, StringComparison.OrdinalIgnoreCase))
-                    is string selectedVersion))
+                var sdks = GetInstalledSdks();
+                var selectedSdk = sdks
+                        .LastOrDefault(sdk => sdk.Version.StartsWith(Version, StringComparison.OrdinalIgnoreCase));
+                if (selectedSdk.IsDefault)
                     throw new CliException(string.Join(
                         Environment.NewLine,
                         $"The {Version} version of .Net Core SDK was not found",
@@ -68,7 +85,7 @@ namespace DotNetSdkHelpers.Commands
                     {
                         sdk = new
                         {
-                            version = selectedVersion
+                            version = selectedSdk.Version
                         }
                     }));
             }
