@@ -6,13 +6,13 @@ using static DotNetSdkHelpers.Helpers;
 namespace DotNetSdkHelpers.Commands
 {
     [Command(Description = "Lists all installed .NET Core SDKs")]
-    public class List
+    public class List : Command
     {
-        public Task<int> OnExecuteAsync()
+        public override Task Run()
         {
             var output = CaptureOutput("dotnet", "--list-sdks");
             Console.WriteLine(output.Trim());
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
     }
 }

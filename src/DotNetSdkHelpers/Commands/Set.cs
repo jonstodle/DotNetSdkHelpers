@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
 using static DotNetSdkHelpers.Helpers;
@@ -9,7 +10,7 @@ using static DotNetSdkHelpers.Helpers;
 namespace DotNetSdkHelpers.Commands
 {
     [Command(Description = "Switches to the specified .NET Core SDK version")]
-    public class Set
+    public class Set : Command
     {
         // ReSharper disable UnassignedGetOnlyAutoProperty
         [Argument(0, Description = "'latest' or a specific version")]
@@ -17,7 +18,7 @@ namespace DotNetSdkHelpers.Commands
         public string Version { get; }
         // ReSharper restore UnassignedGetOnlyAutoProperty
 
-        public int OnExecute()
+        public override Task Run()
         {
             if (Version.Equals("latest", StringComparison.OrdinalIgnoreCase))
             {
@@ -56,11 +57,10 @@ namespace DotNetSdkHelpers.Commands
                         .Reverse()
                         .FirstOrDefault(v => v.StartsWith(Version, StringComparison.OrdinalIgnoreCase))
                     is string selectedVersion))
-                {
-                    Console.WriteLine($"The {Version} version of .Net Core SDK was not found");
-                    Console.WriteLine("Run \"dotnet sdk list\" to make sure you have it installed");
-                    return 1;
-                }
+                    throw new CliException(string.Join(
+                        Environment.NewLine,
+                        $"The {Version} version of .Net Core SDK was not found",
+                        "Run \"dotnet sdk list\" to make sure you have it installed"));
 
                 File.WriteAllText(
                     "global.json",
@@ -76,7 +76,7 @@ namespace DotNetSdkHelpers.Commands
             var output = CaptureOutput("dotnet", "--version");
             Console.WriteLine($".NET Core SDK version switched: {output.Trim()}");
 
-            return 0;
+            return Task.CompletedTask;
         }
     }
 }

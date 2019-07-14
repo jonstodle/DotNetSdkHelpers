@@ -12,7 +12,7 @@ namespace DotNetSdkHelpers.Commands
 {
     [Command(Description =
         "Downloads the provided release version & platform.")]
-    public class Get
+    public class Get : Command
     {
         // ReSharper disable UnassignedGetOnlyAutoProperty
         [Argument(0, Description = "Version to download, or 'latest' (or empty)")]
@@ -26,7 +26,7 @@ namespace DotNetSdkHelpers.Commands
         public bool IncludePreview { get; }
         // ReSharper restore UnassignedGetOnlyAutoProperty
 
-        public async Task<int> OnExecuteAsync()
+        public override async Task Run()
         {
             Console.WriteLine("Resolving version to download...");
             
@@ -34,10 +34,7 @@ namespace DotNetSdkHelpers.Commands
             var platform = GetPlatformString();
 
             if (platform is null)
-            {
-                Console.Error.WriteLine("Unable to detect platform. Specify a platform using the --platform flag.");
-                return 1;
-            }
+                throw new CliException("Unable to detect platform. Specify a platform using the --platform flag.");
 
             if (!((await GetReleases())
                 .Where(r => IncludePreview || !r.IsPreview)
@@ -45,10 +42,7 @@ namespace DotNetSdkHelpers.Commands
                 .FirstOrDefault(r => version.Equals("latest") ||
                                      r.SdkVersion.StartsWith(version, StringComparison.OrdinalIgnoreCase))
                 is Release release))
-            {
-                Console.Error.WriteLine("Unable to identify a release with specified version.");
-                return 1;
-            }
+                throw new CliException("Unable to identify a release with specified version.");
 
             var downloadUrl = release[$"sdk-{platform}{GetPackageExtension(platform)}"];
             var fileDownloadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
@@ -80,8 +74,6 @@ namespace DotNetSdkHelpers.Commands
                 FileName = fileDownloadPath,
                 UseShellExecute = true,
             });
-
-            return 0;
         }
 
         private string GetPlatformString()

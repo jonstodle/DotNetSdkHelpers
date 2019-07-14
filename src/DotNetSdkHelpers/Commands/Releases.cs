@@ -7,14 +7,14 @@ using static DotNetSdkHelpers.Helpers;
 namespace DotNetSdkHelpers.Commands
 {
     [Command(Description = "Lists all available releases of .NET Core SDKs")]
-    public class Releases
+    public class Releases : Command
     {
         // ReSharper disable UnassignedGetOnlyAutoProperty
         [Option(Description = "Only show LTS releases")]
         public bool LtsOnly { get; }
         // ReSharper restore UnassignedGetOnlyAutoProperty
 
-        public async Task<int> OnExecuteAsync()
+        public override async Task Run()
         {
             var releases = await GetReleases();
             
@@ -24,8 +24,6 @@ namespace DotNetSdkHelpers.Commands
             {
                 Console.WriteLine($"{release.SdkVersion}{(release.IsLtsRuntime ? " (LTS)" : "")}");
             }
-
-            return 0;
         }
     }
 }
