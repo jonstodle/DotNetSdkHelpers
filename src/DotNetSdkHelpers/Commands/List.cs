@@ -5,7 +5,7 @@ using static DotNetSdkHelpers.Helpers;
 
 namespace DotNetSdkHelpers.Commands
 {
-    [Command(Description = "Lists all installed .NET Core SDKs")]
+    [Command("list", "ls", Description = "Lists all installed .NET Core SDKs")]
     public class List : Command
     {
         public override Task Run()
