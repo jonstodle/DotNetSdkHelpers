@@ -29,25 +29,35 @@ namespace DotNetSdkHelpers.Commands
 
             if (string.IsNullOrWhiteSpace(Version))
             {
-                var releases = (await GetReleases())
+                var channels = (await GetReleaseChannels())
                     .Where(CreateFilterPredicate())
                     .OrderByDescending(r => r.ChannelVersion)
                     .ToList();
 
-                var longestChannelVersion = releases.Max(r => r.ChannelVersion.Length);
-                var longestLatestSdk = releases.Max(r => r.LatestSdk.Length) + 2;
+                var longestChannelVersion = channels.Max(c => c.ChannelVersion.Length);
+                var longestLatestSdk = channels.Max(c => c.LatestSdk.Length) + 2;
 
-                foreach (var release in releases)
+                foreach (var channel in channels)
                     Console.WriteLine(
-                        $"{release.ChannelVersion.PadRight(longestChannelVersion)} {$"({release.LatestSdk})".PadRight(longestLatestSdk)} - {release.SupportPhase.Display()}");
+                        $"{channel.ChannelVersion.PadRight(longestChannelVersion)} {$"({channel.LatestSdk})".PadRight(longestLatestSdk)} - {channel.SupportPhase.Display()}");
             }
             else
             {
-                var channels = await GetReleases();
+                var channels = (await GetReleaseChannels())
+                    .Where(r => r.ChannelVersion.StartsWith(Version, StringComparison.OrdinalIgnoreCase));
+
+                var releaseJsons = await Task.WhenAll(channels.Select(c => GetReleases(c.ReleasesJson)));
+                
+                foreach (var sdk in releaseJsons
+                    .SelectMany(rs => rs.Select(r => r.Sdk))
+                    .OrderByDescending(s => s.Version))
+                {
+                    Console.WriteLine($"{sdk.Version}");
+                }
             }
         }
 
-        private Func<Release, bool> CreateFilterPredicate()
+        private Func<ReleaseChannel, bool> CreateFilterPredicate()
         {
             if (LtsOnly)
                 return r => r.SupportPhase == SupportPhases.Lts;

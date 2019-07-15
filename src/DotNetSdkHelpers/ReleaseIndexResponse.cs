@@ -6,6 +6,6 @@ namespace DotNetSdkHelpers
     public partial class ReleasesIndexResponse
     {
         [JsonProperty("releases-index")]
-        public List<Release> Releases { get; set; }
+        public List<ReleaseChannel> Releases { get; set; }
     }
 }

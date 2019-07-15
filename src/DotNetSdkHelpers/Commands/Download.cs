@@ -37,14 +37,14 @@ namespace DotNetSdkHelpers.Commands
             if (platform is null)
                 throw new CliException("Unable to detect platform. Specify a platform using the --platform flag.");
 
-//            if (!((await GetReleases())
+//            if (!((await GetReleaseChannels())
 //                .Where(r => IncludePreview || !r.IsPreview)
 //                .OrderByDescending(r => r.SdkVersion)
 //                .FirstOrDefault(r => version.Equals("latest") ||
 //                                     r.SdkVersion.StartsWith(version, StringComparison.OrdinalIgnoreCase))
-//                is Release release))
+//                is ReleaseChannel release))
 //                throw new CliException("Unable to identify a release with specified version.");
-            var release = (await GetReleases()).First();
+            var release = (await GetReleaseChannels()).First();
 
 //            var downloadUrl = release[$"sdk-{platform}{GetPackageExtension(platform)}"];
             var downloadUrl = release.Product;
