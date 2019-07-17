@@ -60,7 +60,6 @@ namespace DotNetSdkHelpers.Commands
             var fileDownloadPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
                 "Downloads",
-                // ReSharper disable once PossibleNullReferenceException
                 file.Name);
 
             var client = new HttpClient();
