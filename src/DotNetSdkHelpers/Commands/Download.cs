@@ -36,7 +36,13 @@ namespace DotNetSdkHelpers.Commands
             if (release is null)
                 throw new CliException($"Unable to resolve a version matching {Version}");
             
-            // TODO: Check if version is already installed
+            if (GetInstalledSdks()
+                .Select(s => s.Version)
+                .Contains(release.Sdk.Version, StringComparer.OrdinalIgnoreCase) &&
+                !Prompt.GetYesNo(
+                    $"SDK version {release.Sdk.Version} is already installed on this machine. Download anyway?", 
+                    false))
+                return;
 
             var file = release.Sdk.Files
                 .FirstOrDefault(f => f.Rid.Equals(platform, StringComparison.OrdinalIgnoreCase));
