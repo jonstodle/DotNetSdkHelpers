@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
 using static DotNetSdkHelpers.Helpers;
@@ -11,23 +12,30 @@ using static DotNetSdkHelpers.Helpers;
 namespace DotNetSdkHelpers.Commands
 {
     [Command(Description =
-        "Downloads the provided release version & platform."),
-    Subcommand(typeof(DownloadList))]
+         "Downloads the provided release version & platform."),
+     Subcommand(typeof(DownloadList))]
     public class Download : Command
     {
         // ReSharper disable UnassignedGetOnlyAutoProperty
         [Argument(0, Description = "'lts', 'current', 'preview' or a specific version. (Default: 'current')")]
         public string Version { get; } = "current";
 
+        [Option(CommandOptionType.NoValue, Description =
+            "Indicate the version specified is the runtime version, NOT the SDK version.")]
+        public bool Runtime { get; }
+
         [Option(CommandOptionType.SingleValue, Description =
             "The platform to download for. Defaults to the current platform on Windows and MacOS")]
         public string Platform { get; }
+        
+        [Option(CommandOptionType.NoValue, Description = "Indicate that validation of hash should NOT be done.")]
+        public bool NoHashValidation { get; }
         // ReSharper restore UnassignedGetOnlyAutoProperty
 
         public override async Task Run()
         {
             Console.WriteLine("Resolving version to download...");
-            
+
             var platform = GetPlatformString() ?? Platform;
             if (platform is null)
                 throw new CliException("Unable to detect platform. Specify a platform using the --platform flag.");
@@ -54,15 +62,15 @@ namespace DotNetSdkHelpers.Commands
                 "Downloads",
                 // ReSharper disable once PossibleNullReferenceException
                 file.Name);
-            
+
             var client = new HttpClient();
 
             var downloadMessage = $"Downloading .NET Core SDK version {release.Sdk.Version} for {platform}";
-            
+
             using (var fileStream = new FileStream(fileDownloadPath, FileMode.Create))
             using (var stream = await client.GetStreamAsync(file.Url))
             {
-                var buffer = new byte[(long)(20 * Math.Pow(2, 10))];
+                var buffer = new byte[(long) (20 * Math.Pow(2, 10))];
                 int bytesRead;
                 var bytesWritten = 0;
                 while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
@@ -76,8 +84,22 @@ namespace DotNetSdkHelpers.Commands
 
                 Console.WriteLine();
             }
-            
-            // TODO: Validate hash
+
+            if (!NoHashValidation)
+            {
+                Console.WriteLine("Validating hash...");
+                using (var hasher = new SHA512Managed())
+                {
+                    var hash = hasher.ComputeHash(File.OpenRead(fileDownloadPath));
+                    var hashString = BitConverter.ToString(hash).Replace("-", "");
+                    if (!file.Hash.Equals(hashString))
+                        throw new CliException(string.Join(
+                            Environment.NewLine,
+                            "Calculated hash did not match the one specified by Microsoft.",
+                            $"Microsoft provided hash: {file.Hash}",
+                            $"Locally computed hash:   {hashString}"));
+                }
+            }
 
             Process.Start(new ProcessStartInfo
             {
@@ -103,7 +125,7 @@ namespace DotNetSdkHelpers.Commands
             var isPreview = version.Equals("preview", StringComparison.OrdinalIgnoreCase);
             var isCurrent = version.Equals("current", StringComparison.OrdinalIgnoreCase);
             var isLts = version.Equals("lts", StringComparison.OrdinalIgnoreCase);
-            
+
             var channel = await GetReleaseChannel();
             if (channel is null)
                 return null;
@@ -120,7 +142,7 @@ namespace DotNetSdkHelpers.Commands
                     return channels.Find(c => c.SupportPhase == SupportPhases.Current);
                 if (isLts)
                     return channels.Find(c => c.SupportPhase == SupportPhases.Lts);
-                
+
                 var vPrefix = string.Join("", version.Take(3));
                 return channels.Find(c => c.ChannelVersion.StartsWith(vPrefix, StringComparison.OrdinalIgnoreCase));
             }
@@ -130,9 +152,12 @@ namespace DotNetSdkHelpers.Commands
                 var releases = await GetReleases(channel.ReleasesJson);
                 if (isPreview || isCurrent || isLts)
                     return releases.FirstOrDefault();
-                
-                return releases
-                    .FirstOrDefault(r => r.Sdk.Version.StartsWith(version, StringComparison.OrdinalIgnoreCase));
+
+                return Runtime
+                    ? releases
+                        .FirstOrDefault(r => r.ReleaseVersion.StartsWith(version, StringComparison.OrdinalIgnoreCase))
+                    : releases
+                        .FirstOrDefault(r => r.Sdk.Version.StartsWith(version, StringComparison.OrdinalIgnoreCase));
             }
         }
     }
