@@ -35,14 +35,14 @@ namespace DotNetSdkHelpers.Commands
             var release = await GetRelease(Version);
             if (release is null)
                 throw new CliException($"Unable to resolve a version matching {Version}");
-            
+
             if (GetInstalledSdks()
-                .Select(s => s.Version)
-                .Contains(release.Sdk.Version, StringComparer.OrdinalIgnoreCase) &&
+                    .Select(s => s.Version)
+                    .Contains(release.Sdk.Version, StringComparer.OrdinalIgnoreCase) &&
                 !Prompt.GetYesNo(
-                    $"SDK version {release.Sdk.Version} is already installed on this machine. Download anyway?", 
+                    $"SDK version {release.Sdk.Version} is already installed on this machine. Download anyway?",
                     false))
-                return;
+                throw new CliException("Download canceled");
 
             var file = release.Sdk.Files
                 .FirstOrDefault(f => f.Rid.Equals(platform, StringComparison.OrdinalIgnoreCase));
