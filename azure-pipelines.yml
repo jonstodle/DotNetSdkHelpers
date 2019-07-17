@@ -14,8 +14,8 @@ steps:
     command: 'pack'
     packagesToPack: 'src/**/*.csproj'
     versioningScheme: 'off'
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'DotNetSdkHelpers'
-        publishLocation: 'Container'
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'DotNetSdkHelpers'
+    publishLocation: 'Container'
