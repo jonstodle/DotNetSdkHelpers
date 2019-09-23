@@ -9,6 +9,7 @@ namespace DotNetSdkHelpers
         Current,
         Lts,
         Eol,
+        Maintenance,
     }
 
     public static class SupportPhasesMixins
