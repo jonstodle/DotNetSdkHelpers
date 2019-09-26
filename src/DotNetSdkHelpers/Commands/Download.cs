@@ -91,7 +91,7 @@ namespace DotNetSdkHelpers.Commands
                 {
                     var hash = hasher.ComputeHash(File.OpenRead(fileDownloadPath));
                     var hashString = BitConverter.ToString(hash).Replace("-", "");
-                    if (!file.Hash.Equals(hashString))
+                    if (!file.Hash.Equals(hashString, StringComparison.OrdinalIgnoreCase))
                         throw new CliException(string.Join(
                             Environment.NewLine,
                             "Calculated hash did not match the one specified by Microsoft.",
