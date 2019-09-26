@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace DotNetSdkHelpers
 {
-    public partial class Sdk
+    public class Sdk
     {
         [JsonProperty("version")]
         public string Version { get; set; }

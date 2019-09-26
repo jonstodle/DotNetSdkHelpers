@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace DotNetSdkHelpers
 {
-    public partial class Release
+    public class Release
     {
         [JsonProperty("release-date")]
         public DateTimeOffset ReleaseDate { get; set; }

@@ -22,7 +22,7 @@ namespace DotNetSdkHelpers
             return result;
         }
     }
-    public partial class ReleaseChannel
+    public class ReleaseChannel
     {
         [JsonProperty("channel-version")]
         public string ChannelVersion { get; set; }
