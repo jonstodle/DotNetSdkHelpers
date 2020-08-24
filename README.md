@@ -14,9 +14,8 @@ Options:
   -?|-h|--help  Show help information
 
 Commands:
-  get           Downloads the provided release version & platform.
+  download      Downloads the provided release version & platform.
   list          Lists all installed .NET Core SDKs
-  releases      Lists all available releases of .NET Core SDKs
   set           Switches to the specified .NET Core SDK version
 
 Run 'dotnet-sdk [command] --help' for more information about a command.
