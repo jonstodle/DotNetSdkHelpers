@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "ms-dotnettools.csharp",
+    "editorconfig.editorconfig",
+    "davidanson.vscode-markdownlint"
+  ]
+}

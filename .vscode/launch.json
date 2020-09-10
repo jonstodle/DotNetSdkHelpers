@@ -1,0 +1,23 @@
+{
+  "configurations": [
+    {
+      "args": [
+      ],
+      "console": "internalConsole",
+      "cwd": "${workspaceFolder}/src/DotNetSdkHelpers",
+      "name": ".NET Core Launch (console)",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/DotNetSdkHelpers/bin/Debug/netcoreapp2.1/DotNetSdkHelpers.dll",
+      "request": "launch",
+      "stopAtEntry": false,
+      "type": "coreclr"
+    },
+    {
+      "name": ".NET Core Attach",
+      "processId": "${command:pickProcess}",
+      "request": "attach",
+      "type": "coreclr"
+    }
+  ],
+  "version": "0.2.0"
+}
