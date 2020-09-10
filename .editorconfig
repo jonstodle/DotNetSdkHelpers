@@ -1,0 +1,48 @@
+; EditorConfig to support per-solution formatting.
+; Use the EditorConfig VS add-in to make this work.
+; http://editorconfig.org/
+
+; This is the default for the codeline.
+root = true
+
+[*]
+indent_style = space
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+; .NET project files and MSBuild - match defaults for VS
+[*.{csproj,nuspec,proj,projitems,props,shproj,targets,vbproj,vcxproj,vcxproj.filters,vsixmanifest,vsct}]
+indent_size = 2
+
+; .NET solution files - match defaults for VS
+[*.sln]
+indent_style = tab
+
+; JSON - match .NET Core templates
+[*.json]
+indent_size = 2
+
+; Markdown - match markdownlint settings
+[*.md]
+indent_size = 2
+
+; YAML - match standard YAML like GitHub Actions
+[*.{yaml,yml}]
+indent_size = 2
+
+; .NET Code
+; Core .editorconfig example:
+; https://github.com/dotnet/corefx/blob/master/.editorconfig
+[*.cs]
+indent_size = 4
+charset = utf-8-bom
+
+; Avoid this. unless absolutely necessary
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion
+
+; Code style defaults
+csharp_using_directive_placement = outside_namespace:suggestion
+dotnet_sort_system_directives_first = true
