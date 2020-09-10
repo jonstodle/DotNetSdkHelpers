@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace DotNetSdkHelpers
@@ -53,5 +55,8 @@ namespace DotNetSdkHelpers
 
         [JsonProperty("releases.json")]
         public Uri ReleasesJson { get; set; }
+
+        [JsonIgnore]
+        public IEnumerable<Release> Releases { get; set; }
     }
 }

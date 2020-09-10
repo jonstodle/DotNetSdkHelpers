@@ -18,9 +18,9 @@ namespace DotNetSdkHelpers
                         "https://raw.githubusercontent.com/dotnet/core/master/release-notes/releases-index.json"))
                 .Releases;
 
-        public static async Task<List<Release>> GetReleases(Uri address) =>
-            JsonConvert.DeserializeObject<ReleasesResponse>(
-                    await Client.GetStringAsync(address))
+        public static async Task UpdateReleases(this ReleaseChannel channel) =>
+            channel.Releases = JsonConvert.DeserializeObject<ReleasesResponse>(
+                    await Client.GetStringAsync(channel.ReleasesJson))
                 .Releases;
 
         public static string CaptureOutput(string fileName, string arguments) =>
