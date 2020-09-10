@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-sdk</ToolCommandName>
-    <LangVersion>7.2</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <Version>1.0.2</Version>
   </PropertyGroup>
   <ItemGroup>
