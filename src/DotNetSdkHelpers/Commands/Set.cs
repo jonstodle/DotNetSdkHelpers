@@ -9,7 +9,7 @@ using static DotNetSdkHelpers.Helpers;
 
 namespace DotNetSdkHelpers.Commands
 {
-    [Command(Description = "Switches to the specified .NET Core SDK version")]
+    [Command(Description = "Creates a global.json to switch to the specified .NET Core SDK version")]
     public class Set : Command
     {
         // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -27,15 +27,15 @@ namespace DotNetSdkHelpers.Commands
                 if (selectedSdk.IsDefault)
                     throw new CliException(string.Join(
                         Environment.NewLine,
-                        $"A preview version of .Net Core SDK was not found",
-                        "Run \"dotnet sdk list\" to make sure you have one installed"));
-                
+                        $"A preview version of .NET Core SDK was not found.",
+                        "Run \"dotnet sdk list\" to make sure you have one installed."));
+
                 File.WriteAllText(
                     "global.json",
                     JsonConvert.SerializeObject(new
                     {
                         sdk = new
-                    {
+                        {
                             version = selectedSdk.Version
                         }
                     }));
@@ -76,8 +76,8 @@ namespace DotNetSdkHelpers.Commands
                 if (selectedSdk.IsDefault)
                     throw new CliException(string.Join(
                         Environment.NewLine,
-                        $"The {Version} version of .Net Core SDK was not found",
-                        "Run \"dotnet sdk list\" to make sure you have it installed"));
+                        $"The {Version} version of .NET Core SDK was not found.",
+                        "Run \"dotnet sdk list\" to make sure you have it installed."));
 
                 File.WriteAllText(
                     "global.json",
