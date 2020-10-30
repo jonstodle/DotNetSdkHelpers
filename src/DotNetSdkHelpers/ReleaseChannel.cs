@@ -10,6 +10,7 @@ namespace DotNetSdkHelpers
         Lts,
         Eol,
         Maintenance,
+        Rc,
     }
 
     public static class SupportPhasesMixins
@@ -17,7 +18,7 @@ namespace DotNetSdkHelpers
         public static string Display(this SupportPhases This)
         {
             var result = This.ToString();
-            if (This == SupportPhases.Eol || This == SupportPhases.Lts)
+            if (This == SupportPhases.Eol || This == SupportPhases.Lts || This == SupportPhases.Rc)
                 result = result.ToUpper();
             return result;
         }
