@@ -11,9 +11,7 @@ using static DotNetSdkHelpers.Helpers;
 
 namespace DotNetSdkHelpers.Commands
 {
-    [Command(Description =
-         "Downloads the provided release version & platform."),
-     Subcommand(typeof(DownloadList))]
+    [Command(Description = "Downloads the provided release version & platform.")]
     public class Download : Command
     {
         // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -27,7 +25,7 @@ namespace DotNetSdkHelpers.Commands
         [Option(CommandOptionType.SingleValue, Description =
             "The platform to download for. Defaults to the current platform on Windows and MacOS")]
         public string Platform { get; }
-        
+
         [Option(CommandOptionType.NoValue, Description = "Indicate that validation of hash should NOT be done.")]
         public bool NoHashValidation { get; }
         // ReSharper restore UnassignedGetOnlyAutoProperty
@@ -148,7 +146,8 @@ namespace DotNetSdkHelpers.Commands
 
             async Task<Release> FindRelease()
             {
-                var releases = await GetReleases(channel.ReleasesJson);
+                await channel.UpdateReleases();
+                var releases = channel.Releases;
                 if (isPreview || isCurrent || isLts)
                     return releases.FirstOrDefault();
 
