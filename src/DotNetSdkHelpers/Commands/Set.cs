@@ -87,7 +87,7 @@ namespace DotNetSdkHelpers.Commands
                         {
                             version = selectedSdk.Version
                         }
-                    }));
+                    }, Formatting.Indented));
             }
 
             var output = CaptureOutput("dotnet", "--version");
