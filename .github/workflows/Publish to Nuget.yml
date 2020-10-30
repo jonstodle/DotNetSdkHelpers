@@ -20,6 +20,6 @@ jobs:
       - name: Build and publish
         run: |
           dotnet pack -o output src/DotNetSdkHelpers/DotNetSdkHelpers.csproj
-          dotnet nuget push src/DotNetSdkHelpers/output/ -s https://nuget.org -k ${NUGET_API_KEY}
+          dotnet nuget push output -s https://nuget.org -k ${NUGET_API_KEY}
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
