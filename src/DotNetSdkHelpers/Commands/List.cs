@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,7 +49,7 @@ namespace DotNetSdkHelpers.Commands
             Console.WriteLine(string.Join(
                 Environment.NewLine,
                 sdks
-                    .Select(sdk => $"{sdk.Version.PadRight(longestName)} {sdk.Location}")));
+                    .Select(sdk => $"{sdk.Version.PadRight(longestName)} [{sdk.Location}]")));
         }
 
         public async Task ListAvailable()

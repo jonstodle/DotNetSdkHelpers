@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -38,8 +38,10 @@ namespace DotNetSdkHelpers
                 .Split(Environment.NewLine)
                 .Select(sdk =>
                 {
-                    var parts = sdk.Split(' ');
-                    return new InstalledSdk(parts[0], parts[1]);
+                    var splitIndex = sdk.IndexOf(' ');
+                    var version = sdk.Substring(0, splitIndex);
+                    var location = sdk.Substring(splitIndex).Trim().Trim('[', ']');
+                    return new InstalledSdk(version, location);
                 })
                 .ToList();
     }
