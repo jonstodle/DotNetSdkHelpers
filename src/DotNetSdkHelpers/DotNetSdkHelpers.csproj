@@ -3,6 +3,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net5.0</TargetFrameworks>
     <PackAsTool>true</PackAsTool>
+    <ContinuousIntegrationBuild>$(CI)</ContinuousIntegrationBuild>
     <ToolCommandName>dotnet-sdk</ToolCommandName>
     <LangVersion>9.0</LangVersion>
     <Version>2.0.1</Version>
