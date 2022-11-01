@@ -20,11 +20,11 @@ public class Set : Command
         {
             var selectedSdk = DotNet.GetInstalledSdks()
                 .LastOrDefault(sdk => sdk.Version.Contains("preview", StringComparison.OrdinalIgnoreCase));
-            if (selectedSdk == null || selectedSdk.IsDefault)
+            if (selectedSdk == null)
                 throw new CliException(string.Join(
                     Environment.NewLine,
                     $"A preview version of .NET Core SDK was not found.",
-                    "Run \"dotnet sdk list\" to make sure you have one installed."));
+                    "Run \"dotnet-sdk list\" to make sure you have one installed."));
 
             File.WriteAllText(
                 "global.json",
@@ -54,11 +54,11 @@ public class Set : Command
             var sdks = DotNet.GetInstalledSdks();
             var selectedSdk = sdks
                     .LastOrDefault(sdk => sdk.Version.StartsWith(Version, StringComparison.OrdinalIgnoreCase));
-            if (selectedSdk == null || selectedSdk.IsDefault)
+            if (selectedSdk == null)
                 throw new CliException(string.Join(
                     Environment.NewLine,
                     $"The {Version} version of .NET Core SDK was not found.",
-                    "Run \"dotnet sdk list\" to make sure you have it installed."));
+                    "Run \"dotnet-sdk list\" to make sure you have it installed."));
 
             File.WriteAllText(
                 "global.json",

@@ -10,6 +10,4 @@ public class InstalledSdk
         Version = version;
         Location = location;
     }
-
-    public bool IsDefault => string.IsNullOrWhiteSpace(Version) && string.IsNullOrWhiteSpace(Location);
 }
