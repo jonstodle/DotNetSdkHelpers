@@ -1,6 +1,5 @@
 ﻿using DotNetSdkHelpers.Models;
 using McMaster.Extensions.CommandLineUtils;
-using static DotNetSdkHelpers.Helpers;
 
 namespace DotNetSdkHelpers.Commands;
 
@@ -37,7 +36,7 @@ public class List : Command
         if (LtsOnly || PreviewOnly || All)
             throw new CliException("The \"--all\", \"--lts-only\", and \"--preview-only\" filters are only supported when listing available SDKs.");
 
-        var sdks = GetInstalledSdks()
+        var sdks = DotNet.GetInstalledSdks()
             .Where(sdk => sdk.Version.StartsWith(Filter, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
@@ -55,7 +54,7 @@ public class List : Command
             throw new CliException("Only one of \"--all\", \"--lts-only\", and \"--preview-only\" are allowed at the same time.");
 
         Console.WriteLine("Getting available releases...");
-        var channels = (await GetReleaseChannels())
+        var channels = (await DotNet.GetReleaseChannels())
             .Where(CreateFilterPredicate())
             .Where(CreateSupportPhasePredicate());
 

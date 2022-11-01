@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using McMaster.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
-using static DotNetSdkHelpers.Helpers;
 
 namespace DotNetSdkHelpers.Commands;
 
@@ -19,7 +18,7 @@ public class Set : Command
     {
         if (Version.Equals("preview", StringComparison.OrdinalIgnoreCase))
         {
-            var selectedSdk = GetInstalledSdks()
+            var selectedSdk = DotNet.GetInstalledSdks()
                 .LastOrDefault(sdk => sdk.Version.Contains("preview", StringComparison.OrdinalIgnoreCase));
             if (selectedSdk == null || selectedSdk.IsDefault)
                 throw new CliException(string.Join(
@@ -52,7 +51,7 @@ public class Set : Command
         }
         else
         {
-            var sdks = GetInstalledSdks();
+            var sdks = DotNet.GetInstalledSdks();
             var selectedSdk = sdks
                     .LastOrDefault(sdk => sdk.Version.StartsWith(Version, StringComparison.OrdinalIgnoreCase));
             if (selectedSdk == null || selectedSdk.IsDefault)
@@ -72,8 +71,8 @@ public class Set : Command
                 }, Formatting.Indented));
         }
 
-        var output = CaptureOutput("dotnet", "--version");
-        Console.WriteLine($".NET Core SDK version switched: {output.Trim()}");
+        var output = DotNet.GetVersion();
+        Console.WriteLine($".NET Core SDK version switched: {output}");
 
         return Task.CompletedTask;
     }

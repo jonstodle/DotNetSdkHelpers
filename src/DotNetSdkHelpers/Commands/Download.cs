@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using DotNetSdkHelpers.Models;
 using McMaster.Extensions.CommandLineUtils;
-using static DotNetSdkHelpers.Helpers;
 
 namespace DotNetSdkHelpers.Commands;
 
@@ -38,7 +37,7 @@ public class Download : Command
         if (release is null)
             throw new CliException($"Unable to resolve a version matching {Version}");
 
-        if (GetInstalledSdks()
+        if (DotNet.GetInstalledSdks()
                 .Select(s => s.Version)
                 .Contains(release.Sdk.Version, StringComparer.OrdinalIgnoreCase) &&
             !Prompt.GetYesNo(
@@ -128,7 +127,7 @@ public class Download : Command
         async Task<ReleaseChannel?> GetReleaseChannel()
         {
             // TODO: It's not LTS/Current/Preview anymore, need to fix this.
-            var channels = await GetReleaseChannels();
+            var channels = await DotNet.GetReleaseChannels();
             if (isPreview)
                 return channels.Find(c => c.SupportPhase == SupportPhase.Preview);
             if (isCurrent)

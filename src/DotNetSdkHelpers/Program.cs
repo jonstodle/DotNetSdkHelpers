@@ -1,6 +1,5 @@
 ﻿using DotNetSdkHelpers.Commands;
 using McMaster.Extensions.CommandLineUtils;
-using static DotNetSdkHelpers.Helpers;
 
 namespace DotNetSdkHelpers;
 
@@ -23,8 +22,16 @@ class Program
     [SuppressMessage("CA1822", "CA1822", Justification = "Convention for CommandLineUtils.")]
     public Task<int> OnExecuteAsync()
     {
-        var output = CaptureOutput("dotnet", "--version");
-        Console.WriteLine(output?.Trim() ?? "Unable to fetch current SDK version");
+        var output = DotNet.GetVersion();
+        if (string.IsNullOrEmpty(output))
+        {
+            Console.WriteLine("Unable to fetch current SDK version");
+        }
+        else
+        {
+            Console.WriteLine(output);
+        }
+
         return Task.FromResult(0);
     }
 }
