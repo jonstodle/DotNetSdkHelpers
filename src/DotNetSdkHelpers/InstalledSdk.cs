@@ -1,16 +1,15 @@
-namespace DotNetSdkHelpers
+namespace DotNetSdkHelpers;
+
+public class InstalledSdk
 {
-    public class InstalledSdk
+    public string Version { get; }
+    public string Location { get; }
+
+    public InstalledSdk(string version, string location)
     {
-        public string Version { get; }
-        public string Location { get; }
-
-        public InstalledSdk(string version, string location)
-        {
-            Version = version;
-            Location = location;
-        }
-
-        public bool IsDefault => string.IsNullOrWhiteSpace(Version) && string.IsNullOrWhiteSpace(Location);
+        Version = version;
+        Location = location;
     }
+
+    public bool IsDefault => string.IsNullOrWhiteSpace(Version) && string.IsNullOrWhiteSpace(Location);
 }

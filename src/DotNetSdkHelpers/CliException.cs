@@ -1,11 +1,10 @@
-namespace DotNetSdkHelpers
-{
-    public class CliException : Exception
-    {
-        public int ExitCode { get; } = 1;
+namespace DotNetSdkHelpers;
 
-        public CliException(string message) : base(message)
-        {
-        }
+public class CliException : Exception
+{
+    public int ExitCode { get; } = 1;
+
+    public CliException(string message) : base(message)
+    {
     }
 }

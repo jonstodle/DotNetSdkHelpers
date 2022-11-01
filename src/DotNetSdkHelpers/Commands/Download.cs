@@ -5,154 +5,153 @@ using DotNetSdkHelpers.Models;
 using McMaster.Extensions.CommandLineUtils;
 using static DotNetSdkHelpers.Helpers;
 
-namespace DotNetSdkHelpers.Commands
+namespace DotNetSdkHelpers.Commands;
+
+[Command(Description = "Downloads the provided release version & platform.")]
+public class Download : Command
 {
-    [Command(Description = "Downloads the provided release version & platform.")]
-    public class Download : Command
+    // ReSharper disable UnassignedGetOnlyAutoProperty
+    [Argument(0, Description = "'lts', 'current', 'preview' or a specific version. (Default: 'current')")]
+    public string Version { get; } = "current";
+
+    [Option(CommandOptionType.NoValue, Description =
+        "Indicate the version specified is the runtime version, NOT the SDK version.")]
+    public bool Runtime { get; }
+
+    [Option(CommandOptionType.SingleValue, Description =
+        "The platform to download for. Defaults to the current platform on Windows and MacOS")]
+    public string? Platform { get; }
+
+    [Option(CommandOptionType.NoValue, Description = "Indicate that validation of hash should NOT be done.")]
+    public bool NoHashValidation { get; }
+    // ReSharper restore UnassignedGetOnlyAutoProperty
+
+    public override async Task Run()
     {
-        // ReSharper disable UnassignedGetOnlyAutoProperty
-        [Argument(0, Description = "'lts', 'current', 'preview' or a specific version. (Default: 'current')")]
-        public string Version { get; } = "current";
+        Console.WriteLine("Resolving version to download...");
 
-        [Option(CommandOptionType.NoValue, Description =
-            "Indicate the version specified is the runtime version, NOT the SDK version.")]
-        public bool Runtime { get; }
+        var platform = GetPlatformString() ?? Platform;
+        if (platform is null)
+            throw new CliException("Unable to detect platform. Specify a platform using the --platform flag.");
 
-        [Option(CommandOptionType.SingleValue, Description =
-            "The platform to download for. Defaults to the current platform on Windows and MacOS")]
-        public string? Platform { get; }
+        var release = await GetRelease(Version);
+        if (release is null)
+            throw new CliException($"Unable to resolve a version matching {Version}");
 
-        [Option(CommandOptionType.NoValue, Description = "Indicate that validation of hash should NOT be done.")]
-        public bool NoHashValidation { get; }
-        // ReSharper restore UnassignedGetOnlyAutoProperty
+        if (GetInstalledSdks()
+                .Select(s => s.Version)
+                .Contains(release.Sdk.Version, StringComparer.OrdinalIgnoreCase) &&
+            !Prompt.GetYesNo(
+                $"SDK version {release.Sdk.Version} is already installed on this machine. Download anyway?",
+                false))
+            throw new CliException("Download canceled");
 
-        public override async Task Run()
+        var file = release.Sdk.Files
+            .FirstOrDefault(f => f.Rid.Equals(platform, StringComparison.OrdinalIgnoreCase));
+        if (file?.Url is null)
+            throw new CliException($"Unable to find a download for platform '{platform}'");
+
+        var fileDownloadPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            "Downloads",
+            file.Name);
+
+        using var client = new HttpClient();
+
+        var downloadMessage = $"Downloading .NET Core SDK version {release.Sdk.Version} for {platform}";
+
+        using (var fileStream = new FileStream(fileDownloadPath, FileMode.Create))
+        using (var stream = await client.GetStreamAsync(file.Url))
         {
-            Console.WriteLine("Resolving version to download...");
-
-            var platform = GetPlatformString() ?? Platform;
-            if (platform is null)
-                throw new CliException("Unable to detect platform. Specify a platform using the --platform flag.");
-
-            var release = await GetRelease(Version);
-            if (release is null)
-                throw new CliException($"Unable to resolve a version matching {Version}");
-
-            if (GetInstalledSdks()
-                    .Select(s => s.Version)
-                    .Contains(release.Sdk.Version, StringComparer.OrdinalIgnoreCase) &&
-                !Prompt.GetYesNo(
-                    $"SDK version {release.Sdk.Version} is already installed on this machine. Download anyway?",
-                    false))
-                throw new CliException("Download canceled");
-
-            var file = release.Sdk.Files
-                .FirstOrDefault(f => f.Rid.Equals(platform, StringComparison.OrdinalIgnoreCase));
-            if (file?.Url is null)
-                throw new CliException($"Unable to find a download for platform '{platform}'");
-
-            var fileDownloadPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                "Downloads",
-                file.Name);
-
-            using var client = new HttpClient();
-
-            var downloadMessage = $"Downloading .NET Core SDK version {release.Sdk.Version} for {platform}";
-
-            using (var fileStream = new FileStream(fileDownloadPath, FileMode.Create))
-            using (var stream = await client.GetStreamAsync(file.Url))
+            var buffer = new byte[(long) (20 * Math.Pow(2, 10))];
+            int bytesRead;
+            var bytesWritten = 0;
+            while ((bytesRead = await stream.ReadAsync(buffer)) > 0)
             {
-                var buffer = new byte[(long) (20 * Math.Pow(2, 10))];
-                int bytesRead;
-                var bytesWritten = 0;
-                while ((bytesRead = await stream.ReadAsync(buffer)) > 0)
-                {
-                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-                    bytesWritten += bytesRead;
+                await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                bytesWritten += bytesRead;
 
-                    Console.SetCursorPosition(0, Console.CursorTop);
-                    Console.Write($"{downloadMessage}: {bytesWritten / Math.Pow(2, 20):N2} MiB");
-                }
-
-                Console.WriteLine();
+                Console.SetCursorPosition(0, Console.CursorTop);
+                Console.Write($"{downloadMessage}: {bytesWritten / Math.Pow(2, 20):N2} MiB");
             }
 
-            if (!NoHashValidation)
-            {
-                Console.WriteLine("Validating hash...");
-                using var hasher = SHA512.Create();
-                using var fileStream = File.OpenRead(fileDownloadPath);
-                var hash = hasher.ComputeHash(fileStream);
-                var hashString = BitConverter.ToString(hash).Replace("-", "", StringComparison.Ordinal);
-                if (!file.Hash.Equals(hashString, StringComparison.OrdinalIgnoreCase))
-                    throw new CliException(string.Join(
-                        Environment.NewLine,
-                        "Calculated hash did not match the one specified by Microsoft.",
-                        $"Microsoft provided hash: {file.Hash}",
-                        $"Locally computed hash:   {hashString}"));
-            }
-
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = fileDownloadPath,
-                UseShellExecute = true,
-            });
+            Console.WriteLine();
         }
 
-        private static string? GetPlatformString()
+        if (!NoHashValidation)
         {
-            var architecture = Environment.Is64BitOperatingSystem ? "x64" : "x32";
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return $"win-{architecture}";
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                return $"osx-{architecture}";
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                return $"linux-{architecture}";
+            Console.WriteLine("Validating hash...");
+            using var hasher = SHA512.Create();
+            using var fileStream = File.OpenRead(fileDownloadPath);
+            var hash = hasher.ComputeHash(fileStream);
+            var hashString = BitConverter.ToString(hash).Replace("-", "", StringComparison.Ordinal);
+            if (!file.Hash.Equals(hashString, StringComparison.OrdinalIgnoreCase))
+                throw new CliException(string.Join(
+                    Environment.NewLine,
+                    "Calculated hash did not match the one specified by Microsoft.",
+                    $"Microsoft provided hash: {file.Hash}",
+                    $"Locally computed hash:   {hashString}"));
+        }
+
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = fileDownloadPath,
+            UseShellExecute = true,
+        });
+    }
+
+    private static string? GetPlatformString()
+    {
+        var architecture = Environment.Is64BitOperatingSystem ? "x64" : "x32";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return $"win-{architecture}";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return $"osx-{architecture}";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            return $"linux-{architecture}";
+        return null;
+    }
+
+    private async Task<Release?> GetRelease(string version)
+    {
+        var isPreview = version.Equals("preview", StringComparison.OrdinalIgnoreCase);
+        var isCurrent = version.Equals("current", StringComparison.OrdinalIgnoreCase);
+        var isLts = version.Equals("lts", StringComparison.OrdinalIgnoreCase);
+
+        var channel = await GetReleaseChannel();
+        if (channel is null)
             return null;
+
+        return await FindRelease();
+
+
+        async Task<ReleaseChannel?> GetReleaseChannel()
+        {
+            // TODO: It's not LTS/Current/Preview anymore, need to fix this.
+            var channels = await GetReleaseChannels();
+            if (isPreview)
+                return channels.Find(c => c.SupportPhase == SupportPhase.Preview);
+            if (isCurrent)
+                return channels.Find(c => c.SupportPhase == SupportPhase.Active);
+            if (isLts)
+                return channels.Find(c => c.SupportPhase == SupportPhase.Maintenance);
+
+            var vPrefix = string.Join("", version.Take(3));
+            return channels.Find(c => c.ChannelVersion.StartsWith(vPrefix, StringComparison.OrdinalIgnoreCase));
         }
 
-        private async Task<Release?> GetRelease(string version)
+        async Task<Release?> FindRelease()
         {
-            var isPreview = version.Equals("preview", StringComparison.OrdinalIgnoreCase);
-            var isCurrent = version.Equals("current", StringComparison.OrdinalIgnoreCase);
-            var isLts = version.Equals("lts", StringComparison.OrdinalIgnoreCase);
+            await channel.UpdateReleases();
+            var releases = channel.Releases;
+            if (isPreview || isCurrent || isLts)
+                return releases.FirstOrDefault();
 
-            var channel = await GetReleaseChannel();
-            if (channel is null)
-                return null;
-
-            return await FindRelease();
-
-
-            async Task<ReleaseChannel?> GetReleaseChannel()
-            {
-                // TODO: It's not LTS/Current/Preview anymore, need to fix this.
-                var channels = await GetReleaseChannels();
-                if (isPreview)
-                    return channels.Find(c => c.SupportPhase == SupportPhase.Preview);
-                if (isCurrent)
-                    return channels.Find(c => c.SupportPhase == SupportPhase.Active);
-                if (isLts)
-                    return channels.Find(c => c.SupportPhase == SupportPhase.Maintenance);
-
-                var vPrefix = string.Join("", version.Take(3));
-                return channels.Find(c => c.ChannelVersion.StartsWith(vPrefix, StringComparison.OrdinalIgnoreCase));
-            }
-
-            async Task<Release?> FindRelease()
-            {
-                await channel.UpdateReleases();
-                var releases = channel.Releases;
-                if (isPreview || isCurrent || isLts)
-                    return releases.FirstOrDefault();
-
-                return Runtime
-                    ? releases
-                        .FirstOrDefault(r => r.ReleaseVersion.StartsWith(version, StringComparison.OrdinalIgnoreCase))
-                    : releases
-                        .FirstOrDefault(r => r.Sdk.Version.StartsWith(version, StringComparison.OrdinalIgnoreCase));
-            }
+            return Runtime
+                ? releases
+                    .FirstOrDefault(r => r.ReleaseVersion.StartsWith(version, StringComparison.OrdinalIgnoreCase))
+                : releases
+                    .FirstOrDefault(r => r.Sdk.Version.StartsWith(version, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
