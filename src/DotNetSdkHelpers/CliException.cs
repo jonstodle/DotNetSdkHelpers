@@ -1,5 +1,3 @@
-using System;
-
 namespace DotNetSdkHelpers
 {
     public class CliException : Exception

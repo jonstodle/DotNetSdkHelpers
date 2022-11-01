@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using DotNetSdkHelpers.Commands;
+﻿using DotNetSdkHelpers.Commands;
 using McMaster.Extensions.CommandLineUtils;
 using static DotNetSdkHelpers.Helpers;
 

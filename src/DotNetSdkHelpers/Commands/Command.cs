@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-
 namespace DotNetSdkHelpers.Commands
 {
     public abstract class Command
