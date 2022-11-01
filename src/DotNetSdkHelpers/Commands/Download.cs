@@ -1,11 +1,7 @@
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
+using DotNetSdkHelpers.Models;
 using McMaster.Extensions.CommandLineUtils;
 using static DotNetSdkHelpers.Helpers;
 
@@ -131,13 +127,14 @@ namespace DotNetSdkHelpers.Commands
 
             async Task<ReleaseChannel?> GetReleaseChannel()
             {
+                // TODO: It's not LTS/Current/Preview anymore, need to fix this.
                 var channels = await GetReleaseChannels();
                 if (isPreview)
-                    return channels.Find(c => c.SupportPhase == SupportPhases.Preview);
+                    return channels.Find(c => c.SupportPhase == SupportPhase.Preview);
                 if (isCurrent)
-                    return channels.Find(c => c.SupportPhase == SupportPhases.Current);
+                    return channels.Find(c => c.SupportPhase == SupportPhase.Active);
                 if (isLts)
-                    return channels.Find(c => c.SupportPhase == SupportPhases.Lts);
+                    return channels.Find(c => c.SupportPhase == SupportPhase.Maintenance);
 
                 var vPrefix = string.Join("", version.Take(3));
                 return channels.Find(c => c.ChannelVersion.StartsWith(vPrefix, StringComparison.OrdinalIgnoreCase));

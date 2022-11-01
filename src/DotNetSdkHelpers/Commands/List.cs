@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using DotNetSdkHelpers.Models;
 using McMaster.Extensions.CommandLineUtils;
 using static DotNetSdkHelpers.Helpers;
 
@@ -103,10 +100,11 @@ namespace DotNetSdkHelpers.Commands
 
         private Func<ReleaseChannel, bool> CreateSupportPhasePredicate()
         {
+            // TODO: It's not LTS vs Preview anymore, need to fix this.
             if (LtsOnly)
-                return r => r.SupportPhase == SupportPhases.Lts;
+                return r => r.SupportPhase == SupportPhase.Active;
             if (PreviewOnly)
-                return r => r.SupportPhase == SupportPhases.Preview;
+                return r => r.SupportPhase == SupportPhase.Preview;
             return r => true;
         }
 
@@ -118,7 +116,7 @@ namespace DotNetSdkHelpers.Commands
                 yield return new ReleaseMeta
                 {
                     ChannelVersion = channel.ChannelVersion,
-                    SupportPhase = isLatest ? (SupportPhases?)channel.SupportPhase : null,
+                    SupportPhase = isLatest ? channel.SupportPhase : null,
                     Version = release.Sdk.Version
                 };
             }
@@ -130,7 +128,7 @@ namespace DotNetSdkHelpers.Commands
         /// </summary>
         private class ReleaseMeta
         {
-            public SupportPhases? SupportPhase { get; set; }
+            public SupportPhase? SupportPhase { get; set; }
             public string ChannelVersion { get; set; } = null!;
             public string Version { get; set; } = null!;
         }
