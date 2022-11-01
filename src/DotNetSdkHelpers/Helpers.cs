@@ -10,26 +10,34 @@ namespace DotNetSdkHelpers
 {
     public static class Helpers
     {
-        private static readonly HttpClient Client = new HttpClient();
+        private static readonly HttpClient Client = new();
 
         public static async Task<List<ReleaseChannel>> GetReleaseChannels() =>
             JsonConvert.DeserializeObject<ReleasesIndexResponse>(
                     await Client.GetStringAsync(
-                        "https://raw.githubusercontent.com/dotnet/core/master/release-notes/releases-index.json"))
+                        new Uri("https://raw.githubusercontent.com/dotnet/core/master/release-notes/releases-index.json")))!
                 .Releases;
 
-        public static async Task UpdateReleases(this ReleaseChannel channel) =>
+        public static async Task UpdateReleases(this ReleaseChannel channel)
+        {
+            if (channel == null)
+            {
+                return;
+            }
+
             channel.Releases = JsonConvert.DeserializeObject<ReleasesResponse>(
-                    await Client.GetStringAsync(channel.ReleasesJson))
+                    await Client.GetStringAsync(channel.ReleasesJson))!
                 .Releases;
+        }
+
 
         public static string CaptureOutput(string fileName, string arguments) =>
             Process.Start(new ProcessStartInfo
-                {
-                    FileName = fileName,
-                    Arguments = arguments,
-                    RedirectStandardOutput = true,
-                })?
+            {
+                FileName = fileName,
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+            })!
                 .StandardOutput.ReadToEnd();
 
         public static List<InstalledSdk> GetInstalledSdks() =>
@@ -38,9 +46,9 @@ namespace DotNetSdkHelpers
                 .Split(Environment.NewLine)
                 .Select(sdk =>
                 {
-                    var splitIndex = sdk.IndexOf(' ');
-                    var version = sdk.Substring(0, splitIndex);
-                    var location = sdk.Substring(splitIndex).Trim().Trim('[', ']');
+                    var splitIndex = sdk.IndexOf(' ', StringComparison.Ordinal);
+                    var version = sdk[..splitIndex];
+                    var location = sdk[splitIndex..].Trim().Trim('[', ']');
                     return new InstalledSdk(version, location);
                 })
                 .ToList();

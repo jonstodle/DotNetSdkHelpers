@@ -14,7 +14,7 @@ namespace DotNetSdkHelpers.Commands
             catch (CliException e)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine(e.Message);
+                await Console.Error.WriteLineAsync(e.Message);
                 Console.ResetColor();
                 Environment.Exit(e.ExitCode);
             }

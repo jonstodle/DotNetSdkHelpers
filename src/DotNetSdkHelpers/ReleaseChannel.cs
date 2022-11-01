@@ -21,17 +21,18 @@ namespace DotNetSdkHelpers
         {
             var result = This.ToString();
             if (This == SupportPhases.Eol || This == SupportPhases.Lts || This == SupportPhases.Rc)
-                result = result.ToUpper();
+                result = result.ToUpperInvariant();
             return result;
         }
     }
+
     public class ReleaseChannel
     {
         [JsonProperty("channel-version")]
-        public string ChannelVersion { get; set; }
+        public string ChannelVersion { get; set; } = null!;
 
         [JsonProperty("latest-release")]
-        public string LatestRelease { get; set; }
+        public string LatestRelease { get; set; } = null!;
 
         [JsonProperty("latest-release-date")]
         public DateTimeOffset LatestReleaseDate { get; set; }
@@ -40,24 +41,24 @@ namespace DotNetSdkHelpers
         public bool Security { get; set; }
 
         [JsonProperty("latest-runtime")]
-        public string LatestRuntime { get; set; }
+        public string LatestRuntime { get; set; } = null!;
 
         [JsonProperty("latest-sdk")]
-        public string LatestSdk { get; set; }
+        public string LatestSdk { get; set; } = null!;
 
         [JsonProperty("product")]
-        public string Product { get; set; }
+        public string Product { get; set; } = null!;
 
         [JsonProperty("support-phase")]
         public SupportPhases SupportPhase { get; set; }
 
         [JsonProperty("eol-date")]
-        public DateTimeOffset? EolDate { get; set; }
+        public DateTimeOffset? EolDate { get; set; } = null!;
 
         [JsonProperty("releases.json")]
-        public Uri ReleasesJson { get; set; }
+        public Uri ReleasesJson { get; set; } = null!;
 
         [JsonIgnore]
-        public IEnumerable<Release> Releases { get; set; }
+        public IEnumerable<Release> Releases { get; set; } = null!;
     }
 }

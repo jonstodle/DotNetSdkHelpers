@@ -62,7 +62,7 @@ namespace DotNetSdkHelpers.Commands
                 .Where(CreateFilterPredicate())
                 .Where(CreateSupportPhasePredicate());
 
-            IEnumerable<ReleaseMeta> releases = null;
+            IEnumerable<ReleaseMeta> releases;
             if (All)
             {
                 await Task.WhenAll(channels.Select(c => c.UpdateReleases()));
@@ -89,7 +89,7 @@ namespace DotNetSdkHelpers.Commands
 
             foreach (var release in releases)
             {
-                var supportPhaseDisplay = release.SupportPhase == null ? null : $" - {release.SupportPhase?.Display()}";
+                var supportPhaseDisplay = release.SupportPhase == null ? null : $" - {release.SupportPhase.Value.Display()}";
                 Console.WriteLine($"{release.ChannelVersion.PadRight(longestChannelVersion)} {$"({release.Version})".PadRight(longestReleaseVersion)}{supportPhaseDisplay}");
             }
         }
@@ -131,8 +131,8 @@ namespace DotNetSdkHelpers.Commands
         private class ReleaseMeta
         {
             public SupportPhases? SupportPhase { get; set; }
-            public string ChannelVersion { get; set; }
-            public string Version { get; set; }
+            public string ChannelVersion { get; set; } = null!;
+            public string Version { get; set; } = null!;
         }
     }
 }

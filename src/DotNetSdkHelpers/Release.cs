@@ -9,15 +9,15 @@ namespace DotNetSdkHelpers
         public DateTimeOffset ReleaseDate { get; set; }
 
         [JsonProperty("release-version")]
-        public string ReleaseVersion { get; set; }
+        public string ReleaseVersion { get; set; } = null!;
 
         [JsonProperty("security")]
         public bool Security { get; set; }
 
         [JsonProperty("release-notes")]
-        public Uri ReleaseNotes { get; set; }
+        public Uri ReleaseNotes { get; set; } = null!;
 
         [JsonProperty("sdk")]
-        public Sdk Sdk { get; set; }
+        public Sdk Sdk { get; set; } = null!;
     }
 }

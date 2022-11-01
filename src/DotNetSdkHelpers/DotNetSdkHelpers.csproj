@@ -9,9 +9,20 @@
     <LangVersion>latest</LangVersion>
     <Version>3.0.0</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/jonstodle/DotNetSdkHelpers</RepositoryUrl>
     <Description>Manage the .NET SDK versions you have installed and get new ones, all with a dotnet CLI tool.</Description>
+    <CodeAnalysisRuleSet>../../Analyzers.ruleset</CodeAnalysisRuleSet>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <Using Include="System.Diagnostics.CodeAnalysis" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.0.1" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />

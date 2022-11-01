@@ -24,7 +24,7 @@ namespace DotNetSdkHelpers.Commands
 
         [Option(CommandOptionType.SingleValue, Description =
             "The platform to download for. Defaults to the current platform on Windows and MacOS")]
-        public string Platform { get; }
+        public string? Platform { get; }
 
         [Option(CommandOptionType.NoValue, Description = "Indicate that validation of hash should NOT be done.")]
         public bool NoHashValidation { get; }
@@ -60,7 +60,7 @@ namespace DotNetSdkHelpers.Commands
                 "Downloads",
                 file.Name);
 
-            var client = new HttpClient();
+            using var client = new HttpClient();
 
             var downloadMessage = $"Downloading .NET Core SDK version {release.Sdk.Version} for {platform}";
 
@@ -70,9 +70,9 @@ namespace DotNetSdkHelpers.Commands
                 var buffer = new byte[(long) (20 * Math.Pow(2, 10))];
                 int bytesRead;
                 var bytesWritten = 0;
-                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+                while ((bytesRead = await stream.ReadAsync(buffer)) > 0)
                 {
-                    fileStream.Write(buffer, 0, bytesRead);
+                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
                     bytesWritten += bytesRead;
 
                     Console.SetCursorPosition(0, Console.CursorTop);
@@ -85,17 +85,16 @@ namespace DotNetSdkHelpers.Commands
             if (!NoHashValidation)
             {
                 Console.WriteLine("Validating hash...");
-                using (var hasher = new SHA512Managed())
-                {
-                    var hash = hasher.ComputeHash(File.OpenRead(fileDownloadPath));
-                    var hashString = BitConverter.ToString(hash).Replace("-", "");
-                    if (!file.Hash.Equals(hashString, StringComparison.OrdinalIgnoreCase))
-                        throw new CliException(string.Join(
-                            Environment.NewLine,
-                            "Calculated hash did not match the one specified by Microsoft.",
-                            $"Microsoft provided hash: {file.Hash}",
-                            $"Locally computed hash:   {hashString}"));
-                }
+                using var hasher = SHA512.Create();
+                using var fileStream = File.OpenRead(fileDownloadPath);
+                var hash = hasher.ComputeHash(fileStream);
+                var hashString = BitConverter.ToString(hash).Replace("-", "", StringComparison.Ordinal);
+                if (!file.Hash.Equals(hashString, StringComparison.OrdinalIgnoreCase))
+                    throw new CliException(string.Join(
+                        Environment.NewLine,
+                        "Calculated hash did not match the one specified by Microsoft.",
+                        $"Microsoft provided hash: {file.Hash}",
+                        $"Locally computed hash:   {hashString}"));
             }
 
             Process.Start(new ProcessStartInfo
@@ -105,7 +104,7 @@ namespace DotNetSdkHelpers.Commands
             });
         }
 
-        private string GetPlatformString()
+        private static string? GetPlatformString()
         {
             var architecture = Environment.Is64BitOperatingSystem ? "x64" : "x32";
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -117,7 +116,7 @@ namespace DotNetSdkHelpers.Commands
             return null;
         }
 
-        private async Task<Release> GetRelease(string version)
+        private async Task<Release?> GetRelease(string version)
         {
             var isPreview = version.Equals("preview", StringComparison.OrdinalIgnoreCase);
             var isCurrent = version.Equals("current", StringComparison.OrdinalIgnoreCase);
@@ -130,7 +129,7 @@ namespace DotNetSdkHelpers.Commands
             return await FindRelease();
 
 
-            async Task<ReleaseChannel> GetReleaseChannel()
+            async Task<ReleaseChannel?> GetReleaseChannel()
             {
                 var channels = await GetReleaseChannels();
                 if (isPreview)
@@ -144,7 +143,7 @@ namespace DotNetSdkHelpers.Commands
                 return channels.Find(c => c.ChannelVersion.StartsWith(vPrefix, StringComparison.OrdinalIgnoreCase));
             }
 
-            async Task<Release> FindRelease()
+            async Task<Release?> FindRelease()
             {
                 await channel.UpdateReleases();
                 var releases = channel.Releases;

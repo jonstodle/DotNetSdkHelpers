@@ -15,7 +15,7 @@ namespace DotNetSdkHelpers
     {
         static void Main(string[] args)
         {
-            var app = new CommandLineApplication<Program>(
+            using var app = new CommandLineApplication<Program>(
                 PhysicalConsole.Singleton,
                 Directory.GetCurrentDirectory());
             app.Conventions.UseDefaultConventions();
@@ -23,6 +23,7 @@ namespace DotNetSdkHelpers
             app.Execute(args);
         }
 
+        [SuppressMessage("CA1822", "CA1822", Justification = "Convention for CommandLineUtils.")]
         public Task<int> OnExecuteAsync()
         {
             var output = CaptureOutput("dotnet", "--version");

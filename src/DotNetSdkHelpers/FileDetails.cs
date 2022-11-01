@@ -6,15 +6,15 @@ namespace DotNetSdkHelpers
     public class FileDetails
     {
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [JsonProperty("rid")]
-        public string Rid { get; set; }
+        public string Rid { get; set; } = null!;
 
         [JsonProperty("url")]
-        public Uri Url { get; set; }
+        public Uri Url { get; set; } = null!;
 
         [JsonProperty("hash")]
-        public string Hash { get; set; }
+        public string Hash { get; set; } = null!;
     }
 }

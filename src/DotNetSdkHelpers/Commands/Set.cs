@@ -10,12 +10,13 @@ using static DotNetSdkHelpers.Helpers;
 namespace DotNetSdkHelpers.Commands
 {
     [Command(Description = "Creates a global.json to switch to the specified .NET Core SDK version")]
+    [SuppressMessage("CA1716", "CA1716", Justification = "Convention for CommandLineUtils.")]
     public class Set : Command
     {
         // ReSharper disable UnassignedGetOnlyAutoProperty
         [Argument(0, Description = "'stable', 'preview' or a specific version")]
         [Required]
-        public string Version { get; }
+        public string Version { get; } = null!;
         // ReSharper restore UnassignedGetOnlyAutoProperty
 
         public override Task Run()
@@ -24,7 +25,7 @@ namespace DotNetSdkHelpers.Commands
             {
                 var selectedSdk = GetInstalledSdks()
                     .LastOrDefault(sdk => sdk.Version.Contains("preview", StringComparison.OrdinalIgnoreCase));
-                if (selectedSdk.IsDefault)
+                if (selectedSdk == null || selectedSdk.IsDefault)
                     throw new CliException(string.Join(
                         Environment.NewLine,
                         $"A preview version of .NET Core SDK was not found.",
@@ -42,15 +43,7 @@ namespace DotNetSdkHelpers.Commands
             }
             else if (Version.Equals("stable", StringComparison.OrdinalIgnoreCase))
             {
-                try
-                {
-                    File.Delete("global.json");
-                }
-                catch
-                {
-                    // ignored
-                }
-
+                DeleteFile("global.json");
                 if (new DirectoryInfo(Directory.GetCurrentDirectory()).Parent?.FullName is string parentDirectoryPath &&
                     Path.Combine(parentDirectoryPath, "global.json") is string parentGlobalJsonPath &&
                     File.Exists(parentGlobalJsonPath) &&
@@ -58,14 +51,7 @@ namespace DotNetSdkHelpers.Commands
                         "There's a global.json in your parent directory. Do you want to delete it?",
                         false))
                 {
-                    try
-                    {
-                        File.Delete(parentGlobalJsonPath);
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
+                    DeleteFile(parentGlobalJsonPath);
                 }
             }
             else
@@ -73,7 +59,7 @@ namespace DotNetSdkHelpers.Commands
                 var sdks = GetInstalledSdks();
                 var selectedSdk = sdks
                         .LastOrDefault(sdk => sdk.Version.StartsWith(Version, StringComparison.OrdinalIgnoreCase));
-                if (selectedSdk.IsDefault)
+                if (selectedSdk == null || selectedSdk.IsDefault)
                     throw new CliException(string.Join(
                         Environment.NewLine,
                         $"The {Version} version of .NET Core SDK was not found.",
@@ -94,6 +80,19 @@ namespace DotNetSdkHelpers.Commands
             Console.WriteLine($".NET Core SDK version switched: {output.Trim()}");
 
             return Task.CompletedTask;
+        }
+
+        [SuppressMessage("CA1031", "CA1031", Justification = "We don't care a lot if we can't delete the file for whatever reason.")]
+        private static void DeleteFile(string path)
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch
+            {
+                // ignored
+            }
         }
     }
 }
