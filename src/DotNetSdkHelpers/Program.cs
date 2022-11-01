@@ -17,14 +17,13 @@ namespace DotNetSdkHelpers
         {
             var app = new CommandLineApplication<Program>(
                 PhysicalConsole.Singleton,
-                Directory.GetCurrentDirectory(),
-                true);
+                Directory.GetCurrentDirectory());
             app.Conventions.UseDefaultConventions();
             app.UsePagerForHelpText = false;
             app.Execute(args);
         }
 
-        public Task<int> OnExecuteAsync(CommandLineApplication app)
+        public Task<int> OnExecuteAsync()
         {
             var output = CaptureOutput("dotnet", "--version");
             Console.WriteLine(output?.Trim() ?? "Unable to fetch current SDK version");
