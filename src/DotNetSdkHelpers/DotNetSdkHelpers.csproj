@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net5.0;netcoreapp3.1</TargetFrameworks>
     <PackAsTool>true</PackAsTool>
     <ContinuousIntegrationBuild>$(CI)</ContinuousIntegrationBuild>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ToolCommandName>dotnet-sdk</ToolCommandName>
-    <LangVersion>9.0</LangVersion>
-    <Version>2.1.0</Version>
+    <LangVersion>latest</LangVersion>
+    <Version>3.0.0</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/jonstodle/DotNetSdkHelpers</RepositoryUrl>
     <Description>Manage the .NET SDK versions you have installed and get new ones, all with a dotnet CLI tool.</Description>
