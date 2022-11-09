@@ -10,15 +10,15 @@ namespace DotNetSdkHelpers.Commands;
 public class Download : Command
 {
     // ReSharper disable UnassignedGetOnlyAutoProperty
-    [Argument(0, Description = "'lts', 'current', 'preview' or a specific version. (Default: 'current')")]
-    public string Version { get; } = "current";
+    [Argument(0, Description = "'active', 'go-live', 'preview' or a specific version. (Default: 'active')")]
+    public string Version { get; } = "active";
 
     [Option(CommandOptionType.NoValue, Description =
         "Indicate the version specified is the runtime version, NOT the SDK version.")]
     public bool Runtime { get; }
 
     [Option(CommandOptionType.SingleValue, Description =
-        "The platform to download for. Defaults to the current platform on Windows and MacOS")]
+        "The platform to download for. Defaults to the current platform on Windows and MacOS.")]
     public string? Platform { get; }
 
     [Option(CommandOptionType.NoValue, Description = "Indicate that validation of hash should NOT be done.")]
@@ -113,44 +113,42 @@ public class Download : Command
 
     private async Task<Release?> GetRelease(string version)
     {
-        var isPreview = version.Equals("preview", StringComparison.OrdinalIgnoreCase);
-        var isCurrent = version.Equals("current", StringComparison.OrdinalIgnoreCase);
-        var isLts = version.Equals("lts", StringComparison.OrdinalIgnoreCase);
-
         var channel = await GetReleaseChannel();
         if (channel is null)
             return null;
 
         return await FindRelease();
 
-
         async Task<ReleaseChannel?> GetReleaseChannel()
         {
-            // TODO: It's not LTS/Current/Preview anymore, need to fix this.
             var channels = await DotNet.GetReleaseChannels();
-            if (isPreview)
-                return channels.Find(c => c.SupportPhase == SupportPhase.Preview);
-            if (isCurrent)
-                return channels.Find(c => c.SupportPhase == SupportPhase.Active);
-            if (isLts)
-                return channels.Find(c => c.SupportPhase == SupportPhase.Maintenance);
-
-            var vPrefix = string.Join("", version.Take(3));
-            return channels.Find(c => c.ChannelVersion.StartsWith(vPrefix, StringComparison.OrdinalIgnoreCase));
+            switch (version.ToUpperInvariant())
+            {
+                case "PREVIEW":
+                    return channels.Find(c => c.SupportPhase == SupportPhase.Preview);
+                case "GO-LIVE":
+                    return channels.Find(c => c.SupportPhase == SupportPhase.GoLive);
+                case "ACTIVE":
+                    return channels.Find(c => c.SupportPhase == SupportPhase.Active);
+                default:
+                    var vPrefix = string.Join("", version.Take(3));
+                    return channels.Find(c => c.ChannelVersion.StartsWith(vPrefix, StringComparison.OrdinalIgnoreCase));
+            }
         }
 
         async Task<Release?> FindRelease()
         {
             await channel.UpdateReleases();
             var releases = channel.Releases;
-            if (isPreview || isCurrent || isLts)
-                return releases.FirstOrDefault();
-
-            return Runtime
-                ? releases
-                    .FirstOrDefault(r => r.ReleaseVersion.StartsWith(version, StringComparison.OrdinalIgnoreCase))
-                : releases
-                    .FirstOrDefault(r => r.Sdk.Version.StartsWith(version, StringComparison.OrdinalIgnoreCase));
+            return version.ToUpperInvariant() switch
+            {
+                "PREVIEW" or "GO-LIVE" or "ACTIVE" => releases.FirstOrDefault(),
+                _ => Runtime
+                        ? releases
+                            .FirstOrDefault(r => r.ReleaseVersion.StartsWith(version, StringComparison.OrdinalIgnoreCase))
+                        : releases
+                            .FirstOrDefault(r => r.Sdk.Version.StartsWith(version, StringComparison.OrdinalIgnoreCase)),
+            };
         }
     }
 }
