@@ -13,19 +13,21 @@ public class List : Command
     [Option(CommandOptionType.NoValue, Description = "List SDKs available to download; default is to list installed SDKs.")]
     public bool Available { get; }
 
-    [Option(CommandOptionType.NoValue, Description = "Show available LTS versions only.")]
-    public bool LtsOnly { get; }
+    [Option("-r|--release-type", "Show available versions matching the specified release types.", CommandOptionType.MultipleValue)]
+    [AllowedValues("sts", "lts")]
+    public IEnumerable<string>? ReleaseTypes { get; }
 
-    [Option(CommandOptionType.NoValue, Description = "Show available preview versions only.")]
-    public bool PreviewOnly { get; }
+    [Option("-s|--support-phase", "Show available versions matching the specified support phases.", CommandOptionType.MultipleValue)]
+    [AllowedValues("preview", "go-live", "active", "maintenance", "eol")]
+    public IEnumerable<string>? SupportPhases { get; }
 
-    [Option("--all", CommandOptionType.NoValue, Description = "Show all available versions including all previews and patch versions.")]
+    [Option("--all", CommandOptionType.NoValue, Description = "Show all available versions including all support phases and release types.")]
     public bool All { get; }
     // ReSharper restore UnassignedGetOnlyAutoProperty
 
     public override async Task Run()
     {
-        if(Available)
+        if (Available)
             await ListAvailable();
         else
             ListInstalled();
@@ -33,8 +35,8 @@ public class List : Command
 
     public void ListInstalled()
     {
-        if (LtsOnly || PreviewOnly || All)
-            throw new CliException("The \"--all\", \"--lts-only\", and \"--preview-only\" filters are only supported when listing available SDKs.");
+        if (All || (ReleaseTypes != null && ReleaseTypes.Any()) || (SupportPhases != null && SupportPhases.Any()))
+            throw new CliException("The \"--all\", \"--release-type\", and \"--support-phase\" filters are only supported when listing available SDKs.");
 
         var sdks = DotNet.GetInstalledSdks()
             .Where(sdk => sdk.Version.StartsWith(Filter, StringComparison.OrdinalIgnoreCase))
@@ -50,13 +52,14 @@ public class List : Command
 
     public async Task ListAvailable()
     {
-        if ((All && (LtsOnly || PreviewOnly)) ||(LtsOnly && PreviewOnly))
-            throw new CliException("Only one of \"--all\", \"--lts-only\", and \"--preview-only\" are allowed at the same time.");
+        if (All && ((ReleaseTypes != null && ReleaseTypes.Any()) || (SupportPhases != null && SupportPhases.Any())))
+            throw new CliException("The \"--all\" parameter may not be used in combination with \"--support-phase\" and \"--release-type\".");
 
         Console.WriteLine("Getting available releases...");
         var channels = (await DotNet.GetReleaseChannels())
-            .Where(CreateFilterPredicate())
-            .Where(CreateSupportPhasePredicate());
+         .Where(CreateFilterPredicate())
+         .Where(CreateSupportPhasePredicate())
+         .Where(CreateReleaseTypePredicate());
 
         IEnumerable<ReleaseMeta> releases;
         if (All)
@@ -68,11 +71,12 @@ public class List : Command
         {
             releases = channels
                 .Select(r => new ReleaseMeta
-                    {
-                        ChannelVersion = r.ChannelVersion,
-                        SupportPhase = r.SupportPhase,
-                        Version = r.LatestSdk
-                    });
+                {
+                    ChannelVersion = r.ChannelVersion,
+                    SupportPhase = r.SupportPhase,
+                    ReleaseType = r.ReleaseType,
+                    Version = r.LatestSdk
+                });
         }
 
         releases = releases
@@ -82,29 +86,74 @@ public class List : Command
 
         var longestChannelVersion = releases.Max(c => c.ChannelVersion.Length);
         var longestReleaseVersion = releases.Max(c => c.Version.Length) + 2;
+        var longestSupportPhase = releases.Where(c => c.SupportPhase != null).Max(c => c.SupportPhase!.Value.ToString().Length) + 2;
 
         foreach (var release in releases)
         {
-            var supportPhaseDisplay = release.SupportPhase == null ? null : $" - {release.SupportPhase.Value.Display()}";
-            Console.WriteLine($"{release.ChannelVersion.PadRight(longestChannelVersion)} {$"({release.Version})".PadRight(longestReleaseVersion)}{supportPhaseDisplay}");
+            var supportPhaseDisplay = release.SupportPhase == null ? "" : release.SupportPhase.Value.Display();
+            var releaseTypeDisplay = release.ReleaseType == null ? "" : release.ReleaseType.Value.ToString().ToUpperInvariant();
+            Console.WriteLine($"{release.ChannelVersion.PadRight(longestChannelVersion)} {$"({release.Version})".PadRight(longestReleaseVersion)}  {supportPhaseDisplay.PadRight(longestSupportPhase)}{releaseTypeDisplay}");
         }
     }
 
     private Func<ReleaseChannel, bool> CreateFilterPredicate()
     {
-        if(!string.IsNullOrEmpty(Filter))
+        if (!string.IsNullOrEmpty(Filter))
             return r => r.ChannelVersion.StartsWith(Filter, StringComparison.OrdinalIgnoreCase);
         return r => true;
     }
 
     private Func<ReleaseChannel, bool> CreateSupportPhasePredicate()
     {
-        // TODO: It's not LTS vs Preview anymore, need to fix this.
-        if (LtsOnly)
-            return r => r.SupportPhase == SupportPhase.Active;
-        if (PreviewOnly)
-            return r => r.SupportPhase == SupportPhase.Preview;
-        return r => true;
+        if (SupportPhases != null)
+        {
+            Func<ReleaseChannel, bool> predicate = r => false;
+            foreach (var supportPhase in SupportPhases)
+            {
+                var parsed = supportPhase switch
+                {
+                    "preview" => SupportPhase.Preview,
+                    "go-live" => SupportPhase.GoLive,
+                    "active" => SupportPhase.Active,
+                    "maintenance" => SupportPhase.Maintenance,
+                    "eol" => SupportPhase.Eol,
+                    _ => throw new CliException($"The value \"{supportPhase}\" is not a valid \"--support-phase\"."),
+                };
+                var capture = predicate;
+                predicate = r => capture(r) || r.SupportPhase == parsed;
+            }
+
+            return predicate;
+        }
+        else
+        {
+            return r => true;
+        }
+    }
+
+    private Func<ReleaseChannel, bool> CreateReleaseTypePredicate()
+    {
+        if (ReleaseTypes != null)
+        {
+            Func<ReleaseChannel, bool> predicate = r => false;
+            foreach (var releaseType in ReleaseTypes)
+            {
+                var parsed = releaseType switch
+                {
+                    "sts" => ReleaseType.Sts,
+                    "lts" => ReleaseType.Lts,
+                    _ => throw new CliException($"The value \"{releaseType}\" is not a valid \"--release-type\"."),
+                };
+                var capture = predicate;
+                predicate = r => capture(r) || r.ReleaseType == parsed;
+            }
+
+            return predicate;
+        }
+        else
+        {
+            return r => true;
+        }
     }
 
     private IEnumerable<ReleaseMeta> ExpandAllReleases(ReleaseChannel channel)
@@ -116,6 +165,7 @@ public class List : Command
             {
                 ChannelVersion = channel.ChannelVersion,
                 SupportPhase = isLatest ? channel.SupportPhase : null,
+                ReleaseType = isLatest ? channel.ReleaseType : null,
                 Version = release.Sdk.Version
             };
         }
@@ -128,6 +178,7 @@ public class List : Command
     private class ReleaseMeta
     {
         public SupportPhase? SupportPhase { get; set; }
+        public ReleaseType? ReleaseType { get; set; }
         public string ChannelVersion { get; set; } = null!;
         public string Version { get; set; } = null!;
     }
