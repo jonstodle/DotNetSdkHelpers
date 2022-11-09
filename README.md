@@ -13,7 +13,7 @@ This global tool helps you manage the set of installed .NET Core SDK versions an
 dotnet tool install -g dotnetsdkhelpers
 
 # Get started!
-dotnet sdk -h
+dotnet-sdk -h
 ```
 
 ## Help and Usage
@@ -21,20 +21,20 @@ dotnet sdk -h
 ```text
 Manage .NET Core SDKs
 
-Usage: dotnet-sdk [options] [command]
+Usage: dotnet-sdk [command] [options]
 
 Options:
-  -?|-h|--help  Show help information
+  -?|-h|--help  Show help information.
 
 Commands:
   download      Downloads the provided release version & platform.
   list          Lists .NET Core SDKs
-  set           Switches to the specified .NET Core SDK version
+  set           Creates a global.json to switch to the specified .NET Core SDK version
 
-Run 'dotnet-sdk [command] --help' for more information about a command.
+Run 'dotnet-sdk [command] -?|-h|--help' for more information about a command.
 ```
 
-### dotnet sdk download
+### dotnet-sdk download
 
 ```text
 Downloads the provided release version & platform.
@@ -42,16 +42,17 @@ Downloads the provided release version & platform.
 Usage: dotnet-sdk download [options] <Version>
 
 Arguments:
-  Version                   'lts', 'current', 'preview' or a specific version. (Default: 'current')
+  Version                   'active', 'go-live', 'preview' or a specific version. (Default: 'active')
+                            Default value is: active.
 
 Options:
   -r|--runtime              Indicate the version specified is the runtime version, NOT the SDK version.
-  -p|--platform <PLATFORM>  The platform to download for. Defaults to the current platform on Windows and MacOS
+  -p|--platform <PLATFORM>  The platform to download for. Defaults to the current platform on Windows and MacOS.
   -n|--no-hash-validation   Indicate that validation of hash should NOT be done.
-  -?|-h|--help              Show help information
+  -?|-h|--help              Show help information.
 ```
 
-### dotnet sdk list
+### dotnet-sdk list
 
 ```text
 Lists .NET Core SDKs
@@ -59,17 +60,19 @@ Lists .NET Core SDKs
 Usage: dotnet-sdk list [options] <Filter>
 
 Arguments:
-  Filter             Filters list to only SDKs starting with the provided string.
+  Filter              Filters list to only SDKs starting with the provided string.
 
 Options:
-  -a|--available     List SDKs available to download; default is to list installed SDKs.
-  -l|--lts-only      Show available LTS versions only.
-  -p|--preview-only  Show available preview versions only.
-  --all              Show all available versions including all previews and patch versions.
-  -?|-h|--help       Show help information
+  -a|--available      List SDKs available to download; default is to list installed SDKs.
+  -r|--release-type   Show available versions matching the specified release types.
+                      Allowed values are: sts, lts.
+  -s|--support-phase  Show available versions matching the specified support phases.
+                      Allowed values are: preview, go-live, active, maintenance, eol.
+  --all               Show all available versions including all support phases and release types.
+  -?|-h|--help        Show help information.
 ```
 
-### dotnet sdk set
+### dotnet-sdk set
 
 ```text
 Switches to the specified .NET Core SDK version
