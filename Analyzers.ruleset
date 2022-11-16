@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Analyzer Rules" Description="Analyzer rules for assemblies." ToolsVersion="16.0">
+    <IncludeAll Action="Warning" />
+    <Rules AnalyzerId="Microsoft.Usage" RuleNamespace="Microsoft.Usage">
+        <!-- Do not expose generic lists - only useful in library code. -->
+        <Rule Id="CA1002" Action="None" />
+        <!-- Mark assemblies with CLSCompliant - only useful in library code. -->
+        <Rule Id="CA1014" Action="None" />
+        <!-- Implement standard exception constructors - only useful in library code. -->
+        <Rule Id="CA1032" Action="None" />
+        <!-- Localize messages - uncomment this when we want to add a new language. -->
+        <Rule Id="CA1303" Action="None" />
+        <!-- Consider calling ConfigureAwait - only useful in library code. -->
+        <Rule Id="CA2007" Action="None" />
+        <!-- Collection properties should be read only - almost all of these are DTOs and not interesting to check. -->
+        <Rule Id="CA2227" Action="None" />
+    </Rules>
+</RuleSet>

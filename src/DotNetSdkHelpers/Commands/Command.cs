@@ -1,25 +1,21 @@
-using System;
-using System.Threading.Tasks;
+namespace DotNetSdkHelpers.Commands;
 
-namespace DotNetSdkHelpers.Commands
+public abstract class Command
 {
-    public abstract class Command
+    public async Task OnExecuteAsync()
     {
-        public async Task OnExecuteAsync()
+        try
         {
-            try
-            {
-                await Run();
-            }
-            catch (CliException e)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine(e.Message);
-                Console.ResetColor();
-                Environment.Exit(e.ExitCode);
-            }
+            await Run();
         }
-
-        public abstract Task Run();
+        catch (CliException e)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            await Console.Error.WriteLineAsync(e.Message);
+            Console.ResetColor();
+            Environment.Exit(e.ExitCode);
+        }
     }
+
+    public abstract Task Run();
 }
