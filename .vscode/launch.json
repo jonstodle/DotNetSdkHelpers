@@ -7,7 +7,7 @@
       "cwd": "${workspaceFolder}/src/DotNetSdkHelpers",
       "name": ".NET Core Launch (console)",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/src/DotNetSdkHelpers/bin/Debug/net6.0/DotNetSdkHelpers.dll",
+      "program": "${workspaceFolder}/src/DotNetSdkHelpers/bin/Debug/net7.0/DotNetSdkHelpers.dll",
       "request": "launch",
       "stopAtEntry": false,
       "type": "coreclr"
