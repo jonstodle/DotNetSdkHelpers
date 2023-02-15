@@ -7,7 +7,7 @@ namespace DotNetSdkHelpers;
  Subcommand(typeof(Set)),
  Subcommand(typeof(List)),
  Subcommand(typeof(Download))]
-class Program
+internal sealed class Program
 {
     static void Main(string[] args)
     {

@@ -175,7 +175,7 @@ public class List : Command
     /// Metadata class supporting the listing of SDK releases. Aggregates data across
     /// release channels and individual releases within the channels.
     /// </summary>
-    private class ReleaseMeta
+    private sealed class ReleaseMeta
     {
         public SupportPhase? SupportPhase { get; set; }
         public ReleaseType? ReleaseType { get; set; }
