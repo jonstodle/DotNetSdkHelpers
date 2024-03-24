@@ -1,6 +1,6 @@
 # DotNetSdkHelpers
 
-[![NuGet](https://img.shields.io/nuget/v/DotNetSdkHelpers)](https://www.nuget.org/packages/DotNetSdkHelpers/)
+[![NuGet](https://img.shields.io/nuget/v/DotNetSdkHelpers)](https://www.nuget.org/packages/DotNetSdkHelpers/) [![BuiltWithDot.Net shield](https://builtwithdot.net/project/415/dotnet-sdk-helpers-cli-tool/badge)](https://builtwithdot.net/project/415/dotnet-sdk-helpers-cli-tool)
 
 A shameless .NET Core CLI tool port of [.NET Core SDK CLI Helpers](https://github.com/faniereynders/dotnet-sdk-helpers)
 
